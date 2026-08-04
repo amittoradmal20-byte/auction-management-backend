@@ -12,9 +12,12 @@ import org.springframework.security.core.Authentication;
 import com.auction.security.userdetails.CustomUserDetails;
 
 import com.auction.dto.request.LoginRequest;
+import com.auction.dto.request.LogoutRequest;
+import com.auction.dto.request.RefreshTokenRequest;
 import com.auction.dto.request.RegisterRequest;
 import com.auction.dto.response.ApiResponse;
 import com.auction.dto.response.JwtResponse;
+import com.auction.entity.RefreshToken;
 import com.auction.entity.Role;
 import com.auction.entity.User;
 import com.auction.exception.DuplicateResourceException;
@@ -25,6 +28,10 @@ import com.auction.repository.UserRepository;
 import com.auction.security.jwt.JwtProperties;
 import com.auction.security.jwt.JwtService;
 import com.auction.service.interfaces.AuthenticationService;
+import com.auction.service.interfaces.RefreshTokenService;
+import com.auction.util.RequestUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Transactional
@@ -37,6 +44,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final JwtProperties jwtProperties;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthenticationServiceImpl(
             UserRepository userRepository,
@@ -44,6 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             PasswordEncoder passwordEncoder,
             UserMapper userMapper,
             JwtService jwtService,
+            RefreshTokenService refreshTokenService,
             AuthenticationManager authenticationManager,
             JwtProperties jwtProperties) {
 
@@ -52,6 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
         this.authenticationManager = authenticationManager;
         this.jwtProperties = jwtProperties;
     }
@@ -91,7 +101,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public JwtResponse login(LoginRequest request) {
+    public JwtResponse login(LoginRequest request,  HttpServletRequest httpRequest) {
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -104,7 +114,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String accessToken = jwtService.generateAccessToken(userDetails);
 
-        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        User user = userDetails.getUser();
+
+        String refreshToken =
+        		refreshTokenService.createRefreshToken(
+        		        user,
+        		        RequestUtil.getUserAgent(httpRequest),
+        		        RequestUtil.getClientIp(httpRequest));
 
         JwtResponse response = new JwtResponse();
 
@@ -117,4 +133,49 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return response;
     }
+    
+    @Override
+    @Transactional
+    public JwtResponse refreshToken(RefreshTokenRequest request) {
+
+        RefreshToken refreshToken =
+                refreshTokenService.validateRefreshToken(
+                        request.getRefreshToken());
+
+        User user = refreshToken.getUser();
+
+        CustomUserDetails userDetails =
+                new CustomUserDetails(user);
+        String accessToken =
+                jwtService.generateAccessToken(userDetails);
+        refreshTokenService.revokeRefreshToken(refreshToken);
+        String newRefreshToken =
+                refreshTokenService.createRefreshToken(
+                        user,
+                        refreshToken.getDeviceName(),
+                        refreshToken.getIpAddress());
+        JwtResponse response = new JwtResponse();
+
+        response.setAccessToken(accessToken);
+        response.setRefreshToken(newRefreshToken);
+        response.setTokenType("Bearer");
+        response.setUsername(user.getUsername());
+        response.setExpiresIn(jwtProperties.getAccessTokenExpiration());
+
+        return response;
+        
+    }
+    
+    @Override
+    @Transactional
+    public void logout(LogoutRequest request) {
+
+        RefreshToken refreshToken =
+                refreshTokenService.validateRefreshToken(
+                        request.getRefreshToken());
+
+        refreshTokenService.revokeRefreshToken(refreshToken);
+    }
+    
+    
 }
