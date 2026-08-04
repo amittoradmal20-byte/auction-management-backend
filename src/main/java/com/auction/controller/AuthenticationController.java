@@ -6,11 +6,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.auction.dto.request.LoginRequest;
+import com.auction.dto.request.LogoutRequest;
+import com.auction.dto.request.RefreshTokenRequest;
 import com.auction.dto.request.RegisterRequest;
 import com.auction.dto.response.ApiResponse;
 import com.auction.dto.response.JwtResponse;
 import com.auction.service.interfaces.AuthenticationService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -37,10 +40,33 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(
-            @Valid @RequestBody LoginRequest request) {
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest) {
 
-        JwtResponse response = authenticationService.login(request);
+        JwtResponse response = authenticationService.login(request, httpRequest);
 
         return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(
+            @Valid @RequestBody LogoutRequest request) {
+
+        authenticationService.logout(request);
+
+        ApiResponse response = new ApiResponse();
+
+        response.setSuccess(true);
+        response.setMessage("Logout successful");
+
+        return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refreshToken(
+            @Valid @RequestBody RefreshTokenRequest request) {
+
+        return ResponseEntity.ok(
+                authenticationService.refreshToken(request));
     }
 }
