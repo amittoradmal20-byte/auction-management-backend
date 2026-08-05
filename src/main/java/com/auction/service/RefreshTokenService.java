@@ -1,4 +1,4 @@
-package com.auction.service.interfaces;
+package com.auction.service;
 
 import com.auction.entity.RefreshToken;
 import com.auction.entity.User;

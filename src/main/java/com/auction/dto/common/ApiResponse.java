@@ -1,4 +1,4 @@
-package com.auction.dto.response;
+package com.auction.dto.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

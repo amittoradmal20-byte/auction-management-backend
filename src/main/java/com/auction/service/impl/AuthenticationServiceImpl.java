@@ -2,6 +2,8 @@ package com.auction.service.impl;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,13 +12,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 
 import com.auction.security.userdetails.CustomUserDetails;
-
-import com.auction.dto.request.LoginRequest;
-import com.auction.dto.request.LogoutRequest;
-import com.auction.dto.request.RefreshTokenRequest;
-import com.auction.dto.request.RegisterRequest;
-import com.auction.dto.response.ApiResponse;
-import com.auction.dto.response.JwtResponse;
+import com.auction.service.AuthenticationService;
+import com.auction.service.RefreshTokenService;
+import com.auction.dto.auth.JwtResponse;
+import com.auction.dto.auth.LoginRequest;
+import com.auction.dto.auth.LogoutRequest;
+import com.auction.dto.auth.RefreshTokenRequest;
+import com.auction.dto.auth.RegisterRequest;
+import com.auction.dto.common.ApiResponse;
 import com.auction.entity.RefreshToken;
 import com.auction.entity.Role;
 import com.auction.entity.User;
@@ -27,8 +30,6 @@ import com.auction.repository.RoleRepository;
 import com.auction.repository.UserRepository;
 import com.auction.security.jwt.JwtProperties;
 import com.auction.security.jwt.JwtService;
-import com.auction.service.interfaces.AuthenticationService;
-import com.auction.service.interfaces.RefreshTokenService;
 import com.auction.util.RequestUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +37,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @Service
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
+	
+	 private static final Logger log =
+	            LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -69,29 +73,45 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public ApiResponse register(RegisterRequest request) {
 
+        log.info("Registration request received for username '{}'.",
+                request.getUsername());
+
         if (userRepository.existsByUsername(request.getUsername())) {
-        	throw new DuplicateResourceException("Username already exists.");
+
+            log.warn("Registration failed. Username '{}' already exists.",
+                    request.getUsername());
+
+            throw new DuplicateResourceException("Username already exists.");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-        	throw new DuplicateResourceException("Email already exists.");
+
+            log.warn("Registration failed. Email '{}' already exists.",
+                    request.getEmail());
+
+            throw new DuplicateResourceException("Email already exists.");
         }
 
         User user = userMapper.toEntity(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
         user.setEnabled(true);
         user.setAccountLocked(false);
         user.setAccountExpired(false);
         user.setCredentialsExpired(false);
 
         Role userRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new ResourceNotFoundException("Default USER role not found."));
+                .orElseThrow(() -> {
+                    log.error("Default USER role not found.");
+                    return new ResourceNotFoundException("Default USER role not found.");
+                });
 
         user.setRoles(Set.of(userRole));
 
         userRepository.save(user);
+
+        log.info("User '{}' registered successfully.",
+                user.getUsername());
 
         ApiResponse response = new ApiResponse();
         response.setSuccess(true);
@@ -101,7 +121,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public JwtResponse login(LoginRequest request,  HttpServletRequest httpRequest) {
+    public JwtResponse login(LoginRequest request,
+                             HttpServletRequest httpRequest) {
+
+        log.info("Login request received for username '{}'.",
+                request.getUsername());
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -112,24 +136,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         CustomUserDetails userDetails =
                 (CustomUserDetails) authentication.getPrincipal();
 
-        String accessToken = jwtService.generateAccessToken(userDetails);
-
         User user = userDetails.getUser();
 
+        log.debug("Authentication successful for user '{}'.",
+                user.getUsername());
+
+        String accessToken =
+                jwtService.generateAccessToken(userDetails);
+
         String refreshToken =
-        		refreshTokenService.createRefreshToken(
-        		        user,
-        		        RequestUtil.getUserAgent(httpRequest),
-        		        RequestUtil.getClientIp(httpRequest));
+                refreshTokenService.createRefreshToken(
+                        user,
+                        RequestUtil.getUserAgent(httpRequest),
+                        RequestUtil.getClientIp(httpRequest));
 
         JwtResponse response = new JwtResponse();
-
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken);
         response.setTokenType("Bearer");
-        response.setUsername(userDetails.getUsername());
-     // Set access token expiration in milliseconds
+        response.setUsername(user.getUsername());
         response.setExpiresIn(jwtProperties.getAccessTokenExpiration());
+
+        log.info("User '{}' logged in successfully.",
+                user.getUsername());
 
         return response;
     }
@@ -138,43 +167,58 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     public JwtResponse refreshToken(RefreshTokenRequest request) {
 
+        log.info("Refresh token request received.");
+
         RefreshToken refreshToken =
                 refreshTokenService.validateRefreshToken(
                         request.getRefreshToken());
 
         User user = refreshToken.getUser();
 
+        log.debug("Generating new access token for user '{}'.",
+                user.getUsername());
+
         CustomUserDetails userDetails =
                 new CustomUserDetails(user);
+
         String accessToken =
                 jwtService.generateAccessToken(userDetails);
+
         refreshTokenService.revokeRefreshToken(refreshToken);
+
         String newRefreshToken =
                 refreshTokenService.createRefreshToken(
                         user,
                         refreshToken.getDeviceName(),
                         refreshToken.getIpAddress());
-        JwtResponse response = new JwtResponse();
 
+        JwtResponse response = new JwtResponse();
         response.setAccessToken(accessToken);
         response.setRefreshToken(newRefreshToken);
         response.setTokenType("Bearer");
         response.setUsername(user.getUsername());
         response.setExpiresIn(jwtProperties.getAccessTokenExpiration());
 
+        log.info("Access token and refresh token regenerated successfully for user '{}'.",
+                user.getUsername());
+
         return response;
-        
     }
     
     @Override
     @Transactional
     public void logout(LogoutRequest request) {
 
+        log.info("Logout request received.");
+
         RefreshToken refreshToken =
                 refreshTokenService.validateRefreshToken(
                         request.getRefreshToken());
 
         refreshTokenService.revokeRefreshToken(refreshToken);
+
+        log.info("User '{}' logged out successfully.",
+                refreshToken.getUser().getUsername());
     }
     
     
