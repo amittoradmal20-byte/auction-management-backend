@@ -3,7 +3,7 @@ package com.auction.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.auction.dto.request.RegisterRequest;
+import com.auction.dto.auth.RegisterRequest;
 import com.auction.entity.User;
 
 @Mapper(componentModel = "spring")

@@ -2,16 +2,17 @@ package com.auction.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import com.auction.dto.request.LoginRequest;
-import com.auction.dto.request.LogoutRequest;
-import com.auction.dto.request.RefreshTokenRequest;
-import com.auction.dto.request.RegisterRequest;
-import com.auction.dto.response.ApiResponse;
-import com.auction.dto.response.JwtResponse;
-import com.auction.service.interfaces.AuthenticationService;
+import com.auction.dto.auth.JwtResponse;
+import com.auction.dto.auth.LoginRequest;
+import com.auction.dto.auth.LogoutRequest;
+import com.auction.dto.auth.RefreshTokenRequest;
+import com.auction.dto.auth.RegisterRequest;
+import com.auction.dto.common.ApiResponse;
+import com.auction.service.AuthenticationService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -68,5 +69,12 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(
                 authenticationService.refreshToken(request));
+    }
+    
+    @GetMapping("/me")
+    public ResponseEntity<String> me(Authentication authentication) {
+
+        return ResponseEntity.ok(
+                "Hello " + authentication.getName());
     }
 }

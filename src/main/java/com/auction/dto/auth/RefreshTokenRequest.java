@@ -1,4 +1,4 @@
-package com.auction.dto.request;
+package com.auction.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class LogoutRequest {
+public class RefreshTokenRequest {
 
     @NotBlank(message = "Refresh token is required")
     private String refreshToken;
