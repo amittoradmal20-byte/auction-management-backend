@@ -6,7 +6,7 @@
 
 CREATE TABLE refresh_tokens
 (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Store SHA-256 hash of refresh token
     token_hash VARCHAR(255) NOT NULL UNIQUE,
@@ -18,7 +18,7 @@ CREATE TABLE refresh_tokens
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
 
     -- Device information
-    device_name VARCHAR(255),
+    device_name VARCHAR(1000),
 
     -- Client IP Address
     ip_address VARCHAR(100),
@@ -28,11 +28,10 @@ CREATE TABLE refresh_tokens
 
     -- Audit Fields
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Relationship
-    user_id BIGINT NOT NULL,
+    user_id UUID NOT NULL,
 
     CONSTRAINT fk_refresh_token_user
         FOREIGN KEY (user_id)
@@ -45,13 +44,13 @@ CREATE TABLE refresh_tokens
 --------------------------------------------------------------
 
 CREATE INDEX idx_refresh_token_hash
-ON refresh_tokens(token_hash);
+    ON refresh_tokens(token_hash);
 
 CREATE INDEX idx_refresh_user
-ON refresh_tokens(user_id);
+    ON refresh_tokens(user_id);
 
 CREATE INDEX idx_refresh_expiry
-ON refresh_tokens(expiry_date);
+    ON refresh_tokens(expiry_date);
 
 CREATE INDEX idx_refresh_revoked
-ON refresh_tokens(revoked);
+    ON refresh_tokens(revoked);

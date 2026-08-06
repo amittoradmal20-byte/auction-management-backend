@@ -1,2 +1,0 @@
-ALTER TABLE refresh_tokens
-ALTER COLUMN device_name TYPE VARCHAR(1000);

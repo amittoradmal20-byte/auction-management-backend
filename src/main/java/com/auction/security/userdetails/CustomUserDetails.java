@@ -10,17 +10,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.auction.entity.Permission;
 import com.auction.entity.Role;
-import com.auction.entity.User;
+import com.auction.entity.UserAccount;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final User user;
+    private final UserAccount user;
 
-    public CustomUserDetails(User user) {
+    public CustomUserDetails(UserAccount user) {
         this.user = user;
     }
 
-    public User getUser() {
+    public UserAccount getUser() {
         return user;
     }
 

@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.auction.entity.User;
+import com.auction.entity.UserAccount;
 import com.auction.repository.UserRepository;
 import com.auction.security.userdetails.CustomUserDetails;
 
@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
-        User user = userRepository
+    	UserAccount user = userRepository
                 .findByUsername(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
