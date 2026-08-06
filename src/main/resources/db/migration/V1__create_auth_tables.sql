@@ -4,12 +4,16 @@
 -- Author  : Amit
 -- ===========================================================
 
--- ===========================
--- USERS
--- ===========================
+-- ===========================================================
+-- Enable UUID generation
+-- ===========================================================
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- ===========================================================
+-- USERS
+-- ===========================================================
 CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
@@ -30,12 +34,14 @@ CREATE TABLE users (
     updated_at TIMESTAMP NOT NULL
 );
 
--- ===========================
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_email ON users(email);
+
+-- ===========================================================
 -- ROLES
--- ===========================
-
+-- ===========================================================
 CREATE TABLE roles (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     name VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(255),
@@ -44,12 +50,13 @@ CREATE TABLE roles (
     updated_at TIMESTAMP NOT NULL
 );
 
--- ===========================
+CREATE INDEX idx_roles_name ON roles(name);
+
+-- ===========================================================
 -- PERMISSIONS
--- ===========================
-
+-- ===========================================================
 CREATE TABLE permissions (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     name VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(255),
@@ -58,14 +65,15 @@ CREATE TABLE permissions (
     updated_at TIMESTAMP NOT NULL
 );
 
--- ===========================
--- USER ROLES
--- ===========================
+CREATE INDEX idx_permissions_name ON permissions(name);
 
+-- ===========================================================
+-- USER ROLES
+-- ===========================================================
 CREATE TABLE user_roles (
 
-    user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
+    user_id UUID NOT NULL,
+    role_id UUID NOT NULL,
 
     PRIMARY KEY (user_id, role_id),
 
@@ -80,14 +88,16 @@ CREATE TABLE user_roles (
         ON DELETE CASCADE
 );
 
--- ===========================
--- ROLE PERMISSIONS
--- ===========================
+CREATE INDEX idx_user_roles_user ON user_roles(user_id);
+CREATE INDEX idx_user_roles_role ON user_roles(role_id);
 
+-- ===========================================================
+-- ROLE PERMISSIONS
+-- ===========================================================
 CREATE TABLE role_permissions (
 
-    role_id BIGINT NOT NULL,
-    permission_id BIGINT NOT NULL,
+    role_id UUID NOT NULL,
+    permission_id UUID NOT NULL,
 
     PRIMARY KEY (role_id, permission_id),
 
@@ -101,3 +111,6 @@ CREATE TABLE role_permissions (
         REFERENCES permissions(id)
         ON DELETE CASCADE
 );
+
+CREATE INDEX idx_role_permissions_role ON role_permissions(role_id);
+CREATE INDEX idx_role_permissions_permission ON role_permissions(permission_id);

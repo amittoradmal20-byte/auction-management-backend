@@ -1,7 +1,7 @@
 package com.auction.service;
 
 import com.auction.entity.RefreshToken;
-import com.auction.entity.User;
+import com.auction.entity.UserAccount;
 
 public interface RefreshTokenService {
 
@@ -11,7 +11,7 @@ public interface RefreshTokenService {
      * Returns the plain refresh token.
      */
     String createRefreshToken(
-            User user,
+    		UserAccount user,
             String deviceName,
             String ipAddress);
 
@@ -33,7 +33,7 @@ public interface RefreshTokenService {
     /**
      * Revoke all refresh tokens of a user.
      */
-    void revokeAllTokens(User user);
+    void revokeAllTokens(UserAccount user);
 
     /**
      * Remove expired refresh tokens.

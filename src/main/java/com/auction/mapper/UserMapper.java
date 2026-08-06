@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.auction.dto.auth.RegisterRequest;
-import com.auction.entity.User;
+import com.auction.entity.UserAccount;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -16,5 +16,5 @@ public interface UserMapper {
     @Mapping(target = "accountLocked", ignore = true)
     @Mapping(target = "accountExpired", ignore = true)
     @Mapping(target = "credentialsExpired", ignore = true)
-    User toEntity(RegisterRequest request);
+    UserAccount toEntity(RegisterRequest request);
 }

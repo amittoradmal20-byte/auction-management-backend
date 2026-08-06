@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auction.entity.RefreshToken;
-import com.auction.entity.User;
+import com.auction.entity.UserAccount;
 import com.auction.exception.InvalidRefreshTokenException;
 import com.auction.repository.RefreshTokenRepository;
 import com.auction.security.token.RefreshTokenGenerator;
@@ -39,7 +39,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public String createRefreshToken(
-            User user,
+    		UserAccount user,
             String deviceName,
             String ipAddress) {
 
@@ -125,7 +125,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public void revokeAllTokens(User user) {
+    public void revokeAllTokens(UserAccount user) {
 
         log.info("Revoking all active refresh tokens for user '{}'.",
                 user.getUsername());

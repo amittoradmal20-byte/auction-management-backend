@@ -22,7 +22,7 @@ import com.auction.dto.auth.RegisterRequest;
 import com.auction.dto.common.ApiResponse;
 import com.auction.entity.RefreshToken;
 import com.auction.entity.Role;
-import com.auction.entity.User;
+import com.auction.entity.UserAccount;
 import com.auction.exception.DuplicateResourceException;
 import com.auction.exception.ResourceNotFoundException;
 import com.auction.mapper.UserMapper;
@@ -92,7 +92,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new DuplicateResourceException("Email already exists.");
         }
 
-        User user = userMapper.toEntity(request);
+        UserAccount user = userMapper.toEntity(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEnabled(true);
@@ -136,7 +136,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         CustomUserDetails userDetails =
                 (CustomUserDetails) authentication.getPrincipal();
 
-        User user = userDetails.getUser();
+        UserAccount user = userDetails.getUser();
 
         log.debug("Authentication successful for user '{}'.",
                 user.getUsername());
@@ -173,7 +173,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 refreshTokenService.validateRefreshToken(
                         request.getRefreshToken());
 
-        User user = refreshToken.getUser();
+        UserAccount user = refreshToken.getUser();
 
         log.debug("Generating new access token for user '{}'.",
                 user.getUsername());
