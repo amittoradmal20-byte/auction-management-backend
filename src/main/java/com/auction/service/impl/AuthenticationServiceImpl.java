@@ -84,13 +84,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new DuplicateResourceException("Username already exists.");
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-
-            log.warn("Registration failed. Email '{}' already exists.",
-                    request.getEmail());
-
-            throw new DuplicateResourceException("Email already exists.");
-        }
+		/*
+		 * if (userRepository.existsByEmail(request.getEmail())) {
+		 * 
+		 * log.warn("Registration failed. Email '{}' already exists.",
+		 * request.getEmail());
+		 * 
+		 * throw new DuplicateResourceException("Email already exists."); }
+		 */
 
         UserAccount user = userMapper.toEntity(request);
 
@@ -173,7 +174,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 refreshTokenService.validateRefreshToken(
                         request.getRefreshToken());
 
-        UserAccount user = refreshToken.getUser();
+        UserAccount user = refreshToken.getUserAccount();
 
         log.debug("Generating new access token for user '{}'.",
                 user.getUsername());
@@ -218,7 +219,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         refreshTokenService.revokeRefreshToken(refreshToken);
 
         log.info("User '{}' logged out successfully.",
-                refreshToken.getUser().getUsername());
+                refreshToken.getUserAccount().getUsername());
     }
     
     

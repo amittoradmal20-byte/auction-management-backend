@@ -49,9 +49,9 @@ public class RefreshToken extends BaseEntity {
     @Column(name = "last_used_at")
     private LocalDateTime lastUsedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserAccount user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_account_id", nullable = false)
+    private UserAccount userAccount;
 
 	public String getTokenHash() {
 		return tokenHash;
@@ -101,11 +101,12 @@ public class RefreshToken extends BaseEntity {
 		this.lastUsedAt = lastUsedAt;
 	}
 
-	public UserAccount getUser() {
-		return user;
+	public UserAccount getUserAccount() {
+		return userAccount;
 	}
 
-	public void setUser(UserAccount user) {
-		this.user = user;
+	public void setUserAccount(UserAccount userAccount) {
+		this.userAccount = userAccount;
 	}
+
 }
