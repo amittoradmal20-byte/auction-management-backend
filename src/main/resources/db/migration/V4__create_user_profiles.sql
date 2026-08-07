@@ -9,11 +9,11 @@ CREATE TABLE user_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Personal Information
-    first_name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100),
 
-    last_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100),
 
-    email VARCHAR(150) NOT NULL UNIQUE,
+    email VARCHAR(150) UNIQUE,
 
     phone VARCHAR(20),
 

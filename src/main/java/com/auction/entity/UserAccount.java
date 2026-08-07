@@ -139,6 +139,9 @@ public class UserAccount extends BaseEntity {
 
 	public void setUserProfile(UserProfile userProfile) {
 		this.userProfile = userProfile;
+		 if (userProfile != null) {
+			 userProfile.setUserAccount(this);
+		    }
 	}
 
 	public Set<Role> getRoles() {

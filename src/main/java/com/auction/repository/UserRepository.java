@@ -24,5 +24,13 @@ public interface UserRepository extends JpaRepository<UserAccount, UUID> {
 		Optional<UserAccount> findByUsername(@Param("username") String username);
 
     boolean existsByUsername(String username);
+    
+    @Query("""
+            SELECT u
+            FROM UserAccount u
+            LEFT JOIN FETCH u.userProfile
+            WHERE u.username = :username
+            """)
+    Optional<UserAccount> findByUsernameWithProfile(@Param("username") String username);
 
 }

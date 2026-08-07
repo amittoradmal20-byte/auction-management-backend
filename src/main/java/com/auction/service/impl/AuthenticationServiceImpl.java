@@ -1,5 +1,6 @@
 package com.auction.service.impl;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import com.auction.dto.common.ApiResponse;
 import com.auction.entity.RefreshToken;
 import com.auction.entity.Role;
 import com.auction.entity.UserAccount;
+import com.auction.entity.UserProfile;
 import com.auction.exception.DuplicateResourceException;
 import com.auction.exception.ResourceNotFoundException;
 import com.auction.mapper.UserMapper;
@@ -71,6 +73,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    @Transactional
     public ApiResponse register(RegisterRequest request) {
 
         log.info("Registration request received for username '{}'.",
@@ -107,7 +110,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     return new ResourceNotFoundException("Default USER role not found.");
                 });
 
-        user.setRoles(Set.of(userRole));
+        user.getRoles().add(userRole);
+
+        UserProfile profile = new UserProfile();
+        profile.setUserAccount(user);
+
+        user.setUserProfile(profile);
 
         userRepository.save(user);
 
