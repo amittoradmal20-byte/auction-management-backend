@@ -22,17 +22,17 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     /**
      * Find all tokens for a user.
      */
-    List<RefreshToken> findByUser(UserAccount user);
+    List<RefreshToken> findByUserAccount(UserAccount userAccount);
 
     /**
      * Find all active (not revoked) tokens for a user.
      */
-    List<RefreshToken> findByUserAndRevokedFalse(UserAccount user);
+    List<RefreshToken> findByUserAccountAndRevokedFalse(UserAccount userAccount);
 
     /**
      * Delete all refresh tokens for a user.
      */
-    void deleteByUser(UserAccount user);
+    void deleteByUserAccount(UserAccount userAccount);
 
     /**
      * Delete expired refresh tokens.

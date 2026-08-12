@@ -57,7 +57,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshToken.setDeviceName(deviceName);
         refreshToken.setIpAddress(ipAddress);
         refreshToken.setLastUsedAt(LocalDateTime.now());
-        refreshToken.setUser(user);
+        refreshToken.setUserAccount(user);
 
         refreshTokenRepository.save(refreshToken);
 
@@ -89,7 +89,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
             log.warn(
                     "Revoked refresh token used by user '{}'.",
-                    entity.getUser().getUsername());
+                    entity.getUserAccount().getUsername());
 
             throw new InvalidRefreshTokenException(
                     "Refresh token has been revoked.");
@@ -99,7 +99,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
             log.warn(
                     "Expired refresh token used by user '{}'.",
-                    entity.getUser().getUsername());
+                    entity.getUserAccount().getUsername());
 
             throw new InvalidRefreshTokenException(
                     "Refresh token has expired.");
@@ -107,7 +107,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         log.debug(
                 "Refresh token validated successfully for user '{}'.",
-                entity.getUser().getUsername());
+                entity.getUserAccount().getUsername());
 
         return entity;
     }
@@ -121,7 +121,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         log.info(
                 "Refresh token revoked successfully for user '{}'.",
-                entity.getUser().getUsername());
+                entity.getUserAccount().getUsername());
     }
 
     @Override
@@ -131,7 +131,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 user.getUsername());
 
         refreshTokenRepository
-                .findByUserAndRevokedFalse(user)
+                .findByUserAccountAndRevokedFalse(user)
                 .forEach(token -> {
                     token.setRevoked(Boolean.TRUE);
                     token.setLastUsedAt(LocalDateTime.now());
@@ -158,7 +158,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
             log.debug(
                     "Refresh token is already revoked for user '{}'.",
-                    refreshToken.getUser().getUsername());
+                    refreshToken.getUserAccount().getUsername());
 
             return;
         }
@@ -170,6 +170,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         log.info(
                 "Refresh token revoked successfully for user '{}'.",
-                refreshToken.getUser().getUsername());
+                refreshToken.getUserAccount().getUsername());
     }
 }

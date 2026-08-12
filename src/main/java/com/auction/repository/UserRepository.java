@@ -23,10 +23,14 @@ public interface UserRepository extends JpaRepository<UserAccount, UUID> {
 		    """)
 		Optional<UserAccount> findByUsername(@Param("username") String username);
 
-    Optional<UserAccount> findByEmail(String email);
-
     boolean existsByUsername(String username);
-
-    boolean existsByEmail(String email);
+    
+    @Query("""
+            SELECT u
+            FROM UserAccount u
+            LEFT JOIN FETCH u.userProfile
+            WHERE u.username = :username
+            """)
+    Optional<UserAccount> findByUsernameWithProfile(@Param("username") String username);
 
 }
