@@ -6,13 +6,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.auction.entity.RefreshToken;
 import com.auction.entity.UserAccount;
 
 @Repository
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID > {
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
 
     /**
      * Find refresh token by hash.
@@ -44,4 +47,16 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
      */
     boolean existsByTokenHash(String tokenHash);
 
+    /**
+     * Revoke all refresh tokens for a user.
+     *
+     * Used when the user changes their password.
+     */
+    @Modifying
+    @Query("""
+            UPDATE RefreshToken rt
+            SET rt.revoked = true
+            WHERE rt.userAccount = :user
+            """)
+    int revokeAllByUser(@Param("user") UserAccount user);
 }

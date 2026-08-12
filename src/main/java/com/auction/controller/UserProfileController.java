@@ -1,5 +1,7 @@
 package com.auction.controller;
 
+import com.auction.dto.common.ApiResponse;
+import com.auction.dto.user.ChangePasswordRequest;
 import com.auction.dto.user.UpdateUserProfileRequest;
 import com.auction.dto.user.UserProfileResponse;
 import com.auction.service.AuthenticationService;
@@ -44,6 +46,20 @@ public class UserProfileController {
             @Valid @RequestBody UpdateUserProfileRequest request) {
 
         UserProfileResponse response = userProfileService.updateMyProfile(request);
+
+        return ResponseEntity.ok(response);
+    }
+    
+    @PutMapping("/me/change-password")
+    public ResponseEntity<ApiResponse> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request) {
+
+        userProfileService.changePassword(request);
+
+        ApiResponse response = new ApiResponse();
+
+        response.setSuccess(true);
+        response.setMessage("Password changed successfully.");
 
         return ResponseEntity.ok(response);
     }
