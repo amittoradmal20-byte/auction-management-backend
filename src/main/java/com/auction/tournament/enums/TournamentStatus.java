@@ -1,0 +1,22 @@
+package com.auction.tournament.enums;
+
+public enum TournamentStatus {
+
+	DRAFT,
+
+	REGISTRATION_OPEN,
+
+	REGISTRATION_CLOSED,
+
+	AUCTION_PENDING,
+
+	AUCTION_IN_PROGRESS,
+
+	AUCTION_COMPLETED,
+
+	TOURNAMENT_IN_PROGRESS,
+
+	COMPLETED,
+
+	CANCELLED
+}
