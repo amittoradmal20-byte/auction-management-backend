@@ -11,17 +11,9 @@ import com.auction.team.entity.Team;
 @Repository
 public interface TeamRepository extends JpaRepository<Team, UUID> {
 
-    boolean existsByTournamentIdAndNameIgnoreCase(
-            UUID tournamentId,
-            String name);
+    boolean existsByNameIgnoreCase(String name);
 
-    boolean existsByTournamentIdAndShortNameIgnoreCase(
-            UUID tournamentId,
-            String shortName);
+    boolean existsByShortNameIgnoreCase(String shortName);
 
-    List<Team> findByTournamentId(UUID tournamentId);
-
-    boolean existsByOwnerIdAndTournamentId(
-            UUID ownerId,
-            UUID tournamentId);
+    List<Team> findAllByOrderByNameAsc();
 }
