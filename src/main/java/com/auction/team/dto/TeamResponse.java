@@ -1,33 +1,30 @@
 package com.auction.team.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.auction.team.enums.TeamStatus;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TeamResponse {
 
     private UUID id;
-
-    private UUID tournamentId;
-
-    private UUID ownerId;
 
     private String name;
 
     private String shortName;
 
     private String logoUrl;
-
-    private BigDecimal initialBudget;
-
-    private BigDecimal remainingBudget;
 
     private TeamStatus status;
 
@@ -41,22 +38,6 @@ public class TeamResponse {
 
 	public void setId(UUID id) {
 		this.id = id;
-	}
-
-	public UUID getTournamentId() {
-		return tournamentId;
-	}
-
-	public void setTournamentId(UUID tournamentId) {
-		this.tournamentId = tournamentId;
-	}
-
-	public UUID getOwnerId() {
-		return ownerId;
-	}
-
-	public void setOwnerId(UUID ownerId) {
-		this.ownerId = ownerId;
 	}
 
 	public String getName() {
@@ -81,22 +62,6 @@ public class TeamResponse {
 
 	public void setLogoUrl(String logoUrl) {
 		this.logoUrl = logoUrl;
-	}
-
-	public BigDecimal getInitialBudget() {
-		return initialBudget;
-	}
-
-	public void setInitialBudget(BigDecimal initialBudget) {
-		this.initialBudget = initialBudget;
-	}
-
-	public BigDecimal getRemainingBudget() {
-		return remainingBudget;
-	}
-
-	public void setRemainingBudget(BigDecimal remainingBudget) {
-		this.remainingBudget = remainingBudget;
 	}
 
 	public TeamStatus getStatus() {

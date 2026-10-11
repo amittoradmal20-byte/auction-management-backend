@@ -13,9 +13,11 @@ public interface TeamService {
 
     TeamResponse getTeam(UUID id);
 
-    List<TeamResponse> getTeamsByTournament(UUID tournamentId);
+    List<TeamResponse> getAllTeams();
 
-    TeamResponse updateTeam(UUID id, TeamUpdateRequest request);
+    TeamResponse updateTeam(
+            UUID id,
+            TeamUpdateRequest request);
 
     void deleteTeam(UUID id);
 }

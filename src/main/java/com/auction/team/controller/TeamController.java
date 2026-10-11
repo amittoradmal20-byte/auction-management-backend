@@ -26,7 +26,7 @@ import jakarta.validation.Valid;
 public class TeamController {
 
     private final TeamService teamService;
-    
+
     public TeamController(TeamService teamService) {
         this.teamService = teamService;
     }
@@ -35,11 +35,19 @@ public class TeamController {
     public ResponseEntity<TeamResponse> createTeam(
             @Valid @RequestBody TeamCreateRequest request) {
 
-        TeamResponse response = teamService.createTeam(request);
+        TeamResponse response =
+                teamService.createTeam(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TeamResponse>> getAllTeams() {
+
+        return ResponseEntity.ok(
+                teamService.getAllTeams());
     }
 
     @GetMapping("/{id}")
@@ -47,17 +55,7 @@ public class TeamController {
             @PathVariable UUID id) {
 
         return ResponseEntity.ok(
-                teamService.getTeam(id)
-        );
-    }
-
-    @GetMapping("/tournament/{tournamentId}")
-    public ResponseEntity<List<TeamResponse>> getTeamsByTournament(
-            @PathVariable UUID tournamentId) {
-
-        return ResponseEntity.ok(
-                teamService.getTeamsByTournament(tournamentId)
-        );
+                teamService.getTeam(id));
     }
 
     @PutMapping("/{id}")
@@ -66,8 +64,7 @@ public class TeamController {
             @Valid @RequestBody TeamUpdateRequest request) {
 
         return ResponseEntity.ok(
-                teamService.updateTeam(id, request)
-        );
+                teamService.updateTeam(id, request));
     }
 
     @DeleteMapping("/{id}")
