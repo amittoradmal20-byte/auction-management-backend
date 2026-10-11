@@ -24,8 +24,6 @@ public class AuctionPlayerResponse {
 
     private UUID playerId;
 
-    private UUID teamId;
-
     private BigDecimal basePrice;
 
     private AuctionPlayerStatus status;
@@ -34,7 +32,7 @@ public class AuctionPlayerResponse {
 
     private BigDecimal soldPrice;
 
-    private UUID soldToTeamId;
+    private UUID soldToTournamentTeamId;
 
 	public UUID getId() {
 		return id;
@@ -58,14 +56,6 @@ public class AuctionPlayerResponse {
 
 	public void setPlayerId(UUID playerId) {
 		this.playerId = playerId;
-	}
-
-	public UUID getTeamId() {
-		return teamId;
-	}
-
-	public void setTeamId(UUID teamId) {
-		this.teamId = teamId;
 	}
 
 	public BigDecimal getBasePrice() {
@@ -100,11 +90,11 @@ public class AuctionPlayerResponse {
 		this.soldPrice = soldPrice;
 	}
 
-	public UUID getSoldToTeamId() {
-		return soldToTeamId;
+	public UUID getSoldToTournamentTeamId() {
+		return soldToTournamentTeamId;
 	}
 
-	public void setSoldToTeamId(UUID soldToTeamId) {
-		this.soldToTeamId = soldToTeamId;
+	public void setSoldToTournamentTeamId(UUID soldToTournamentTeamId) {
+		this.soldToTournamentTeamId = soldToTournamentTeamId;
 	}
 }

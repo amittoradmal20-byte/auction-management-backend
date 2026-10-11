@@ -2,13 +2,11 @@ package com.auction.auctionplayer.entity;
 
 import java.math.BigDecimal;
 
-import java.util.UUID;
-
 import com.auction.auction.entity.Auction;
 import com.auction.auctionplayer.enums.AuctionPlayerStatus;
 import com.auction.entity.BaseEntity;
 import com.auction.player.entity.Player;
-import com.auction.team.entity.Team;
+import com.auction.tournamentteam.entity.TournamentTeam;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,30 +28,47 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AuctionPlayer extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 
-    @Column(name = "base_price", nullable = false, precision = 12, scale = 2)
+    @Column(
+        name = "base_price",
+        nullable = false,
+        precision = 12,
+        scale = 2
+    )
     private BigDecimal basePrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "auction_status", nullable = false, length = 30)
+    @Column(
+        name = "auction_status",
+        nullable = false,
+        length = 30
+    )
     private AuctionPlayerStatus auctionStatus;
 
-    @Column(name = "current_bid", precision = 12, scale = 2)
+    @Column(
+        name = "current_bid",
+        precision = 12,
+        scale = 2
+    )
     private BigDecimal currentBid;
 
-    @Column(name = "sold_price", precision = 12, scale = 2)
+    @Column(
+        name = "sold_price",
+        precision = 12,
+        scale = 2
+    )
     private BigDecimal soldPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sold_to_team_id")
-    private Team soldToTeam;
+    @JoinColumn(name = "sold_to_tournament_team_id")
+    private TournamentTeam soldToTournamentTeam;
 
 	public Auction getAuction() {
 		return auction;
@@ -103,11 +118,11 @@ public class AuctionPlayer extends BaseEntity {
 		this.soldPrice = soldPrice;
 	}
 
-	public Team getSoldToTeam() {
-		return soldToTeam;
+	public TournamentTeam getSoldToTournamentTeam() {
+		return soldToTournamentTeam;
 	}
 
-	public void setSoldToTeam(Team soldToTeam) {
-		this.soldToTeam = soldToTeam;
+	public void setSoldToTournamentTeam(TournamentTeam soldToTournamentTeam) {
+		this.soldToTournamentTeam = soldToTournamentTeam;
 	}
 }
