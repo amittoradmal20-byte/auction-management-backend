@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auction.tournamentteam.dto.TournamentTeamAuctionEligibilityResponse;
 import com.auction.tournamentteam.dto.TournamentTeamCreateRequest;
 import com.auction.tournamentteam.dto.TournamentTeamResponse;
 import com.auction.tournamentteam.dto.TournamentTeamUpdateRequest;
@@ -80,5 +81,15 @@ public class TournamentTeamController {
         tournamentTeamService.deleteTournamentTeam(id);
 
         return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/{tournamentTeamId}/auction-eligibility")
+    public ResponseEntity<TournamentTeamAuctionEligibilityResponse>
+            getAuctionEligibility(
+                    @PathVariable UUID tournamentTeamId) {
+
+        return ResponseEntity.ok(
+                tournamentTeamService.getAuctionEligibility(
+                        tournamentTeamId));
     }
 }

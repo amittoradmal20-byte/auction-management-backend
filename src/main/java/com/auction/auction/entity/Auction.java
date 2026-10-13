@@ -1,5 +1,6 @@
 package com.auction.auction.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.auction.auction.enums.AuctionStatus;
@@ -44,6 +45,12 @@ public class Auction extends BaseEntity {
 
     @Column(name = "end_time")
     private LocalDateTime endTime;
+    
+    @Column(name = "opening_bid", nullable = false, precision = 12, scale = 2)
+    private BigDecimal openingBid = new BigDecimal("1000.00");
+
+    @Column(name = "bid_increment", nullable = false, precision = 12, scale = 2)
+    private BigDecimal bidIncrement = new BigDecimal("500.00");
 
 	public Tournament getTournament() {
 		return tournament;
@@ -91,5 +98,21 @@ public class Auction extends BaseEntity {
 
 	public void setEndTime(LocalDateTime endTime) {
 		this.endTime = endTime;
+	}
+
+	public BigDecimal getOpeningBid() {
+		return openingBid;
+	}
+
+	public void setOpeningBid(BigDecimal openingBid) {
+		this.openingBid = openingBid;
+	}
+
+	public BigDecimal getBidIncrement() {
+		return bidIncrement;
+	}
+
+	public void setBidIncrement(BigDecimal bidIncrement) {
+		this.bidIncrement = bidIncrement;
 	}
 }

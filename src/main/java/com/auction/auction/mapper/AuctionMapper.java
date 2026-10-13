@@ -1,8 +1,10 @@
 package com.auction.auction.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.auction.auction.dto.AuctionCreateRequest;
 import com.auction.auction.dto.AuctionResponse;
@@ -22,6 +24,9 @@ public interface AuctionMapper {
     @Mapping(source = "tournament.id", target = "tournamentId")
     AuctionResponse toResponse(Auction auction);
 
+    @BeanMapping(
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    )
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

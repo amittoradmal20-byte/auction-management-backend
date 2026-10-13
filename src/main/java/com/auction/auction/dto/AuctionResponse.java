@@ -1,5 +1,6 @@
 package com.auction.auction.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -29,6 +30,10 @@ public class AuctionResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+    
+    private BigDecimal openingBid;
+
+    private BigDecimal bidIncrement;
 
 	public UUID getId() {
 		return id;
@@ -100,5 +105,21 @@ public class AuctionResponse {
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public BigDecimal getOpeningBid() {
+		return openingBid;
+	}
+
+	public void setOpeningBid(BigDecimal openingBid) {
+		this.openingBid = openingBid;
+	}
+
+	public BigDecimal getBidIncrement() {
+		return bidIncrement;
+	}
+
+	public void setBidIncrement(BigDecimal bidIncrement) {
+		this.bidIncrement = bidIncrement;
 	}
 }
