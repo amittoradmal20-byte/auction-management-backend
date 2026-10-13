@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.Getter;
@@ -25,6 +26,17 @@ public class AuctionPlayerCreateRequest {
         message = "Base price must be greater than 0"
     )
     private BigDecimal basePrice;
+    
+    @Min(value = 1, message = "Priority must be at least 1")
+    private Integer priority = 1;
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
 
 	public UUID getAuctionId() {
 		return auctionId;

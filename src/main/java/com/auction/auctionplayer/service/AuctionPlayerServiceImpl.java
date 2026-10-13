@@ -92,6 +92,7 @@ public class AuctionPlayerServiceImpl implements AuctionPlayerService {
         auctionPlayer.setAuction(auction);
         auctionPlayer.setPlayer(player);
         auctionPlayer.setBasePrice(request.getBasePrice());
+        auctionPlayer.setPriority(request.getPriority());
         auctionPlayer.setAuctionStatus(AuctionPlayerStatus.PENDING);
         auctionPlayer.setCurrentBid(null);
         auctionPlayer.setSoldPrice(null);
@@ -108,14 +109,13 @@ public class AuctionPlayerServiceImpl implements AuctionPlayerService {
     @Transactional(readOnly = true)
     public List<AuctionPlayerResponse> getPlayersByAuction(UUID auctionId) {
 
-        // Validate that the auction exists
         if (!auctionRepository.existsById(auctionId)) {
             throw new ResourceNotFoundException(
-                    "Auction not found: " + auctionId);
+                    "Auction not found with id: " + auctionId);
         }
 
-        // Fetch auction players and convert them to response DTOs
-        return auctionPlayerRepository.findByAuctionId(auctionId)
+        return auctionPlayerRepository
+                .findByAuctionIdOrderByPriorityAscCreatedAtAsc(auctionId)
                 .stream()
                 .map(auctionPlayerMapper::toResponse)
                 .toList();
