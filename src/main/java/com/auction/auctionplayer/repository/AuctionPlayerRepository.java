@@ -27,4 +27,6 @@ public interface AuctionPlayerRepository
     boolean existsByAuctionIdAndAuctionStatus(
             UUID auctionId,
             AuctionPlayerStatus auctionStatus);
+    
+    List<AuctionPlayer> findByAuctionIdOrderByPriorityAscCreatedAtAsc(UUID auctionId);
 }

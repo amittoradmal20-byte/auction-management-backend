@@ -33,6 +33,16 @@ public class AuctionPlayerResponse {
     private BigDecimal soldPrice;
 
     private UUID soldToTournamentTeamId;
+    
+    private Integer priority;
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
 
 	public UUID getId() {
 		return id;

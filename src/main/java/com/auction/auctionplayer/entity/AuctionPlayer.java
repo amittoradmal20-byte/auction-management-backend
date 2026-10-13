@@ -20,6 +20,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.persistence.OrderBy;
 
 @Entity
 @Table(name = "auction_players")
@@ -28,47 +29,33 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AuctionPlayer extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "auction_id", nullable = false)
-    private Auction auction;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "auction_id", nullable = false)
+	private Auction auction;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "player_id", nullable = false)
-    private Player player;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "player_id", nullable = false)
+	private Player player;
 
-    @Column(
-        name = "base_price",
-        nullable = false,
-        precision = 12,
-        scale = 2
-    )
-    private BigDecimal basePrice;
+	@Column(name = "base_price", nullable = false, precision = 12, scale = 2)
+	private BigDecimal basePrice;
 
-    @Enumerated(EnumType.STRING)
-    @Column(
-        name = "auction_status",
-        nullable = false,
-        length = 30
-    )
-    private AuctionPlayerStatus auctionStatus;
+	@Column(name = "priority", nullable = false)
+	private Integer priority = 1000;
 
-    @Column(
-        name = "current_bid",
-        precision = 12,
-        scale = 2
-    )
-    private BigDecimal currentBid;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "auction_status", nullable = false, length = 30)
+	private AuctionPlayerStatus auctionStatus;
 
-    @Column(
-        name = "sold_price",
-        precision = 12,
-        scale = 2
-    )
-    private BigDecimal soldPrice;
+	@Column(name = "current_bid", precision = 12, scale = 2)
+	private BigDecimal currentBid;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sold_to_tournament_team_id")
-    private TournamentTeam soldToTournamentTeam;
+	@Column(name = "sold_price", precision = 12, scale = 2)
+	private BigDecimal soldPrice;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sold_to_tournament_team_id")
+	private TournamentTeam soldToTournamentTeam;
 
 	public Auction getAuction() {
 		return auction;
@@ -92,6 +79,14 @@ public class AuctionPlayer extends BaseEntity {
 
 	public void setBasePrice(BigDecimal basePrice) {
 		this.basePrice = basePrice;
+	}
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
 	}
 
 	public AuctionPlayerStatus getAuctionStatus() {
