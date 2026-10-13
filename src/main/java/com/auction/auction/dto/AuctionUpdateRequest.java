@@ -1,7 +1,9 @@
 package com.auction.auction.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -25,6 +27,12 @@ public class AuctionUpdateRequest {
 
     @Future(message = "End time must be in the future")
     private LocalDateTime endTime;
+    
+    @DecimalMin(value = "0.01", message = "Opening bid must be greater than zero")
+    private BigDecimal openingBid;
+
+    @DecimalMin(value = "0.01", message = "Bid increment must be greater than zero")
+    private BigDecimal bidIncrement;
 
 	public String getName() {
 		return name;
@@ -56,5 +64,21 @@ public class AuctionUpdateRequest {
 
 	public void setEndTime(LocalDateTime endTime) {
 		this.endTime = endTime;
+	}
+
+	public BigDecimal getOpeningBid() {
+		return openingBid;
+	}
+
+	public void setOpeningBid(BigDecimal openingBid) {
+		this.openingBid = openingBid;
+	}
+
+	public BigDecimal getBidIncrement() {
+		return bidIncrement;
+	}
+
+	public void setBidIncrement(BigDecimal bidIncrement) {
+		this.bidIncrement = bidIncrement;
 	}
 }

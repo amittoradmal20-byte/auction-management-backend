@@ -3,6 +3,7 @@ package com.auction.tournamentteam.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.auction.tournamentteam.dto.TournamentTeamAuctionEligibilityResponse;
 import com.auction.tournamentteam.dto.TournamentTeamCreateRequest;
 import com.auction.tournamentteam.dto.TournamentTeamResponse;
 import com.auction.tournamentteam.dto.TournamentTeamUpdateRequest;
@@ -22,4 +23,6 @@ public interface TournamentTeamService {
             TournamentTeamUpdateRequest request);
 
     void deleteTournamentTeam(UUID id);
+    
+    TournamentTeamAuctionEligibilityResponse getAuctionEligibility(UUID tournamentTeamId);
 }

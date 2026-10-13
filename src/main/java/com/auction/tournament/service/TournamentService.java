@@ -9,13 +9,21 @@ import com.auction.tournament.dto.TournamentUpdateRequest;
 
 public interface TournamentService {
 
-	TournamentResponse createTournament(TournamentCreateRequest request);
+    TournamentResponse createTournament(TournamentCreateRequest request);
 
-	TournamentResponse getTournament(UUID id);
+    TournamentResponse getTournament(UUID id);
 
-	List<TournamentResponse> getAllTournaments();
+    List<TournamentResponse> getAllTournaments();
 
-	TournamentResponse updateTournament(UUID id, TournamentUpdateRequest request);
+    TournamentResponse updateTournament(
+            UUID id,
+            TournamentUpdateRequest request);
 
-	void deleteTournament(UUID id);
+    void deleteTournament(UUID id);
+
+    TournamentResponse openRegistration(UUID tournamentId);
+
+    TournamentResponse closeRegistration(UUID tournamentId);
+
+    TournamentResponse prepareAuction(UUID tournamentId);
 }

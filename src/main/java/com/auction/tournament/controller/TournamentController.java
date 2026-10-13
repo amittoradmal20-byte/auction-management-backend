@@ -18,10 +18,9 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/tournaments")
 public class TournamentController {
 
-    
-    private final  TournamentService tournamentService;
+    private final TournamentService tournamentService;
 
-    public TournamentController( TournamentService tournamentService) {
+    public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
     }
 
@@ -32,9 +31,7 @@ public class TournamentController {
         TournamentResponse response =
                 tournamentService.createTournament(request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
@@ -68,5 +65,29 @@ public class TournamentController {
         tournamentService.deleteTournament(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/open-registration")
+    public ResponseEntity<TournamentResponse> openRegistration(
+            @PathVariable UUID id) {
+
+        return ResponseEntity.ok(
+                tournamentService.openRegistration(id));
+    }
+
+    @PatchMapping("/{id}/close-registration")
+    public ResponseEntity<TournamentResponse> closeRegistration(
+            @PathVariable UUID id) {
+
+        return ResponseEntity.ok(
+                tournamentService.closeRegistration(id));
+    }
+
+    @PatchMapping("/{id}/prepare-auction")
+    public ResponseEntity<TournamentResponse> prepareAuction(
+            @PathVariable UUID id) {
+
+        return ResponseEntity.ok(
+                tournamentService.prepareAuction(id));
     }
 }

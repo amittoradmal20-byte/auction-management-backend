@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.auction.auctionplayer.entity.AuctionPlayer;
@@ -29,4 +31,16 @@ public interface AuctionPlayerRepository
             AuctionPlayerStatus auctionStatus);
     
     List<AuctionPlayer> findByAuctionIdOrderByPriorityAscCreatedAtAsc(UUID auctionId);
+    
+    @Query("""
+    	    SELECT COUNT(ap)
+    	    FROM AuctionPlayer ap
+    	    WHERE ap.soldToTournamentTeam.id = :tournamentTeamId
+    	      AND ap.auction.tournament.id = :tournamentId
+    	      AND ap.auctionStatus = :status
+    	    """)
+    	long countSoldPlayersByTeamAndTournament(
+    	        @Param("tournamentTeamId") UUID tournamentTeamId,
+    	        @Param("tournamentId") UUID tournamentId,
+    	        @Param("status") AuctionPlayerStatus status);
 }
