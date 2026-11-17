@@ -21,4 +21,6 @@ public interface AuctionRepository extends JpaRepository<Auction, UUID> {
     boolean existsByTournamentIdAndStatusIn(
             UUID tournamentId,
             List<AuctionStatus> statuses);
+    
+    long countByStatus(AuctionStatus status);
 }
