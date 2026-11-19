@@ -1,6 +1,8 @@
+
 package com.auction.tournamentplayer.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,9 +24,16 @@ public interface TournamentPlayerRepository
             UUID playerId,
             TournamentPlayerStatus status);
 
-    List<TournamentPlayer> findByTournamentId(UUID tournamentId);
+    List<TournamentPlayer> findByTournamentId(
+            UUID tournamentId);
 
     List<TournamentPlayer> findByTournamentIdAndStatus(
             UUID tournamentId,
             TournamentPlayerStatus status);
+
+    // Find an existing tournament-player registration.
+    // Used for withdrawal and re-registration.
+    Optional<TournamentPlayer> findByTournamentIdAndPlayerId(
+            UUID tournamentId,
+            UUID playerId);
 }
