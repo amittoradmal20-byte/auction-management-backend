@@ -1,3 +1,4 @@
+
 package com.auction.tournamentplayer.controller;
 
 import java.util.List;
@@ -5,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,8 +28,13 @@ public class TournamentPlayerController {
 
     public TournamentPlayerController(
             TournamentPlayerService tournamentPlayerService) {
+
         this.tournamentPlayerService = tournamentPlayerService;
     }
+
+    // =====================================================
+    // 1. REGISTER OR RE-REGISTER PLAYER
+    // =====================================================
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,10 +44,28 @@ public class TournamentPlayerController {
         return tournamentPlayerService.registerPlayer(request);
     }
 
+    // =====================================================
+    // 2. GET PLAYERS BY TOURNAMENT
+    // =====================================================
+
     @GetMapping("/tournament/{tournamentId}")
     public List<TournamentPlayerResponse> getPlayersByTournament(
             @PathVariable UUID tournamentId) {
 
         return tournamentPlayerService.getPlayersByTournament(tournamentId);
+    }
+
+    // =====================================================
+    // 3. WITHDRAW PLAYER FROM TOURNAMENT
+    // =====================================================
+
+    @PatchMapping("/tournament/{tournamentId}/player/{playerId}/withdraw")
+    public TournamentPlayerResponse withdrawPlayer(
+            @PathVariable UUID tournamentId,
+            @PathVariable UUID playerId) {
+
+        return tournamentPlayerService.withdrawPlayer(
+                tournamentId,
+                playerId);
     }
 }
