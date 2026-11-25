@@ -23,97 +23,98 @@ import lombok.Setter;
 @Setter
 public class MatchScheduleCreateRequest {
 
-    // ==========================================
-    // 1. TOURNAMENT INFORMATION
-    // ==========================================
+	// ==========================================
+	// 1. TOURNAMENT INFORMATION
+	// ==========================================
 
-    @NotNull(message = "Tournament ID is required")
-    private UUID tournamentId;
+	@NotNull(message = "Tournament ID is required")
+	private UUID tournamentId;
 
-    @NotBlank(message = "Schedule name is required")
-    @Size(max = 150)
-    private String name;
+	@NotBlank(message = "Schedule name is required")
+	@Size(max = 150)
+	private String name;
 
-    // ==========================================
-    // 2. SCHEDULING CONFIGURATION
-    // ==========================================
+	// ==========================================
+	// 2. SCHEDULING CONFIGURATION
+	// ==========================================
 
-    @NotNull(message = "Scheduling type is required")
-    private SchedulingType schedulingType;
+	@NotNull(message = "Scheduling type is required")
+	private SchedulingType schedulingType;
 
-    @NotBlank(message = "League format is required")
-    private String leagueFormat;
+	@NotBlank(message = "League format is required")
+	private String leagueFormat;
 
-    @NotBlank(message = "Playoff format is required")
-    private String playoffFormat;
+	@NotNull(message = "Opponents to skip is required")
+	@Min(value = 0, message = "Opponents to skip cannot be negative")
+	private Integer opponentsToSkip = 0;
 
-    @Min(value = 0, message = "Qualifying team count cannot be negative")
-    private Integer qualifyingTeamCount = 0;
+	@NotBlank(message = "Playoff format is required")
+	private String playoffFormat;
 
-    // ==========================================
-    // 3. TOURNAMENT DATES
-    // ==========================================
+	@Min(value = 0, message = "Qualifying team count cannot be negative")
+	private Integer qualifyingTeamCount = 0;
 
-    @NotNull(message = "Start date is required")
-    private LocalDate startDate;
+	// ==========================================
+	// 3. TOURNAMENT DATES
+	// ==========================================
 
-    @NotNull(message = "End date is required")
-    private LocalDate endDate;
+	@NotNull(message = "Start date is required")
+	private LocalDate startDate;
 
-    private Set<DayOfWeek> allowedDaysOfWeek = new HashSet<>();
+	@NotNull(message = "End date is required")
+	private LocalDate endDate;
 
-    private Set<LocalDate> selectedDates = new HashSet<>();
+	private Set<DayOfWeek> allowedDaysOfWeek = new HashSet<>();
 
-    private Set<LocalDate> excludedDates = new HashSet<>();
+	private Set<LocalDate> selectedDates = new HashSet<>();
 
-    // ==========================================
-    // 4. DAILY MATCH TIMINGS
-    // ==========================================
+	private Set<LocalDate> excludedDates = new HashSet<>();
 
-    @NotNull(message = "Daily start time is required")
-    private LocalTime dailyStartTime;
+	// ==========================================
+	// 4. DAILY MATCH TIMINGS
+	// ==========================================
 
-    @NotNull(message = "Daily end time is required")
-    private LocalTime dailyEndTime;
+	@NotNull(message = "Daily start time is required")
+	private LocalTime dailyStartTime;
 
-    @NotNull(message = "Match duration is required")
-    @Min(value = 1, message = "Match duration must be positive")
-    private Integer matchDurationMinutes;
+	@NotNull(message = "Daily end time is required")
+	private LocalTime dailyEndTime;
 
-    @Min(value = 0, message = "Break cannot be negative")
-    private Integer breakBetweenMatchesMinutes = 0;
+	@NotNull(message = "Match duration is required")
+	@Min(value = 1, message = "Match duration must be positive")
+	private Integer matchDurationMinutes;
 
-    // ==========================================
-    // 5. FAIRNESS CONFIGURATION
-    // ==========================================
+	@Min(value = 0, message = "Break cannot be negative")
+	private Integer breakBetweenMatchesMinutes = 0;
 
-    @Min(value = 0, message = "Minimum rest cannot be negative")
-    private Integer minimumRestMinutes = 0;
+	// ==========================================
+	// 5. FAIRNESS CONFIGURATION
+	// ==========================================
 
-    @Min(
-        value = 0,
-        message = "Minimum matches between appearances cannot be negative"
-    )
-    private Integer minimumMatchesBetweenAppearances = 1;
+	@Min(value = 0, message = "Minimum rest cannot be negative")
+	private Integer minimumRestMinutes = 0;
 
-    @NotNull(message = "Maximum matches per team per day is required")
-    @Min(value = 1)
-    private Integer maxMatchesPerTeamPerDay;
+	@Min(value = 0, message = "Minimum matches between appearances cannot be negative")
+	private Integer minimumMatchesBetweenAppearances = 1;
 
-    // ==========================================
-    // 6. GROUND CONFIGURATION
-    // ==========================================
+	@NotNull(message = "Maximum matches per team per day is required")
+	@Min(value = 1)
+	private Integer maxMatchesPerTeamPerDay;
 
-    @NotNull(message = "Number of grounds is required")
-    @Min(value = 1)
-    @Max(value = 20)
-    private Integer numberOfGrounds = 1;
+	// ==========================================
+	// 6. GROUND CONFIGURATION
+	// ==========================================
 
-    // ==========================================
-    // 7. RANDOMIZATION
-    // ==========================================
+	@NotNull(message = "Number of grounds is required")
+	@Min(value = 1)
+	@Max(value = 20)
+	private Integer numberOfGrounds = 1;
 
-    private Long randomSeed;
+	// ==========================================
+	// 7. RANDOMIZATION
+	// ==========================================
+
+	private Long randomSeed;
 
 	public UUID getTournamentId() {
 		return tournamentId;
@@ -273,5 +274,13 @@ public class MatchScheduleCreateRequest {
 
 	public void setRandomSeed(Long randomSeed) {
 		this.randomSeed = randomSeed;
+	}
+	
+	public Integer getOpponentsToSkip() {
+	    return opponentsToSkip;
+	}
+
+	public void setOpponentsToSkip(Integer opponentsToSkip) {
+	    this.opponentsToSkip = opponentsToSkip;
 	}
 }

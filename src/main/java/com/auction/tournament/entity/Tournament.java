@@ -1,3 +1,4 @@
+
 package com.auction.tournament.entity;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +29,13 @@ public class Tournament extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
+    // ==========================================
+    // TOURNAMENT LOGO
+    // ==========================================
+
+    @Column(name = "logo_url", length = 500)
+    private String logoUrl;
+
     @Column(name = "start_date")
     private LocalDate startDate;
 
@@ -40,51 +49,59 @@ public class Tournament extends BaseEntity {
     @Column(name = "max_teams", nullable = false)
     private Integer maxTeams;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public LocalDate getStartDate() {
-		return startDate;
-	}
+    public String getLogoUrl() {
+        return logoUrl;
+    }
 
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
-	}
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
 
-	public LocalDate getEndDate() {
-		return endDate;
-	}
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
-	public void setEndDate(LocalDate endDate) {
-		this.endDate = endDate;
-	}
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
 
-	public TournamentStatus getStatus() {
-		return status;
-	}
+    public LocalDate getEndDate() {
+        return endDate;
+    }
 
-	public void setStatus(TournamentStatus status) {
-		this.status = status;
-	}
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
 
-	public Integer getMaxTeams() {
-		return maxTeams;
-	}
+    public TournamentStatus getStatus() {
+        return status;
+    }
 
-	public void setMaxTeams(Integer maxTeams) {
-		this.maxTeams = maxTeams;
-	}
+    public void setStatus(TournamentStatus status) {
+        this.status = status;
+    }
+
+    public Integer getMaxTeams() {
+        return maxTeams;
+    }
+
+    public void setMaxTeams(Integer maxTeams) {
+        this.maxTeams = maxTeams;
+    }
 }

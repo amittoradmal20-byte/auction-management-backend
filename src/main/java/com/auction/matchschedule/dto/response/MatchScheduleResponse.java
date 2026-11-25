@@ -19,101 +19,103 @@ import lombok.Setter;
 @Setter
 public class MatchScheduleResponse {
 
-    // ==========================================
-    // 1. SCHEDULE INFORMATION
-    // ==========================================
+	// ==========================================
+	// 1. SCHEDULE INFORMATION
+	// ==========================================
 
-    private UUID id;
+	private UUID id;
 
-    private UUID tournamentId;
+	private UUID tournamentId;
 
-    private String tournamentName;
+	private String tournamentName;
 
-    private String name;
+	private String name;
 
-    private MatchScheduleStatus status;
+	private MatchScheduleStatus status;
 
-    // ==========================================
-    // 2. SCHEDULING CONFIGURATION
-    // ==========================================
+	// ==========================================
+	// 2. SCHEDULING CONFIGURATION
+	// ==========================================
 
-    private SchedulingType schedulingType;
+	private SchedulingType schedulingType;
 
-    private String leagueFormat;
+	private String leagueFormat;
 
-    private String playoffFormat;
+	private Integer opponentsToSkip;
 
-    private Integer qualifyingTeamCount;
+	private String playoffFormat;
 
-    // ==========================================
-    // 3. TOURNAMENT DATES
-    // ==========================================
+	private Integer qualifyingTeamCount;
 
-    private LocalDate startDate;
+	// ==========================================
+	// 3. TOURNAMENT DATES
+	// ==========================================
 
-    private LocalDate endDate;
+	private LocalDate startDate;
 
-    private Set<DayOfWeek> allowedDaysOfWeek = new HashSet<>();
+	private LocalDate endDate;
 
-    private Set<LocalDate> selectedDates = new HashSet<>();
+	private Set<DayOfWeek> allowedDaysOfWeek = new HashSet<>();
 
-    private Set<LocalDate> excludedDates = new HashSet<>();
+	private Set<LocalDate> selectedDates = new HashSet<>();
 
-    // ==========================================
-    // 4. DAILY MATCH TIMINGS
-    // ==========================================
+	private Set<LocalDate> excludedDates = new HashSet<>();
 
-    private LocalTime dailyStartTime;
+	// ==========================================
+	// 4. DAILY MATCH TIMINGS
+	// ==========================================
 
-    private LocalTime dailyEndTime;
+	private LocalTime dailyStartTime;
 
-    private Integer matchDurationMinutes;
+	private LocalTime dailyEndTime;
 
-    private Integer breakBetweenMatchesMinutes;
+	private Integer matchDurationMinutes;
 
-    // ==========================================
-    // 5. FAIRNESS CONFIGURATION
-    // ==========================================
+	private Integer breakBetweenMatchesMinutes;
 
-    private Integer minimumRestMinutes;
+	// ==========================================
+	// 5. FAIRNESS CONFIGURATION
+	// ==========================================
 
-    private Integer minimumMatchesBetweenAppearances;
+	private Integer minimumRestMinutes;
 
-    private Integer maxMatchesPerTeamPerDay;
+	private Integer minimumMatchesBetweenAppearances;
 
-    // ==========================================
-    // 6. GROUND CONFIGURATION
-    // ==========================================
+	private Integer maxMatchesPerTeamPerDay;
 
-    private Integer numberOfGrounds;
+	// ==========================================
+	// 6. GROUND CONFIGURATION
+	// ==========================================
 
-    // ==========================================
-    // 7. RANDOMIZATION
-    // ==========================================
+	private Integer numberOfGrounds;
 
-    private Long randomSeed;
+	// ==========================================
+	// 7. RANDOMIZATION
+	// ==========================================
 
-    private Integer generationNumber;
+	private Long randomSeed;
 
-    // ==========================================
-    // 8. GENERATED MATCH STATISTICS
-    // ==========================================
+	private Integer generationNumber;
 
-    private Integer totalTeams;
+	// ==========================================
+	// 8. GENERATED MATCH STATISTICS
+	// ==========================================
 
-    private Integer totalLeagueMatches;
+	private Integer totalTeams;
 
-    private Integer totalPlayoffMatches;
+	private Integer totalLeagueMatches;
 
-    private Integer totalMatches;
+	private Integer totalPlayoffMatches;
 
-    // ==========================================
-    // 9. AUDIT INFORMATION
-    // ==========================================
+	private Integer totalMatches;
 
-    private LocalDateTime createdAt;
+	// ==========================================
+	// 9. AUDIT INFORMATION
+	// ==========================================
 
-    private LocalDateTime updatedAt;
+	private LocalDateTime createdAt;
+
+	private LocalDateTime updatedAt;
 
 	public UUID getId() {
 		return id;
@@ -353,5 +355,13 @@ public class MatchScheduleResponse {
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public Integer getOpponentsToSkip() {
+		return opponentsToSkip;
+	}
+
+	public void setOpponentsToSkip(Integer opponentsToSkip) {
+		this.opponentsToSkip = opponentsToSkip;
 	}
 }

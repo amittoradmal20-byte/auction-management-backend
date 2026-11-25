@@ -48,6 +48,9 @@ public class MatchSchedule extends BaseEntity {
 
 	@Column(name = "league_format", nullable = false, length = 30)
 	private String leagueFormat;
+	
+	@Column(name = "opponents_to_skip", nullable = false)
+	private Integer opponentsToSkip = 0;
 
 	@Column(name = "playoff_format", nullable = false, length = 30)
 	private String playoffFormat;
@@ -261,6 +264,14 @@ public class MatchSchedule extends BaseEntity {
 
 	public void setSelectedDates(String selectedDates) {
 		this.selectedDates = selectedDates;
+	}
+
+	public Integer getOpponentsToSkip() {
+		return opponentsToSkip;
+	}
+
+	public void setOpponentsToSkip(Integer opponentsToSkip) {
+		this.opponentsToSkip = opponentsToSkip;
 	}
 
 }

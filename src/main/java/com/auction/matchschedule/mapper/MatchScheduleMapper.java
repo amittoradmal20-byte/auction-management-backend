@@ -64,6 +64,10 @@ public class MatchScheduleMapper {
                 entity.getLeagueFormat()
         );
 
+        response.setOpponentsToSkip(
+                entity.getOpponentsToSkip()
+        );
+
         response.setPlayoffFormat(
                 entity.getPlayoffFormat()
         );

@@ -1,4 +1,6 @@
+
 spring:
+
   application:
     name: auction-management-backend
 
@@ -20,7 +22,34 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+  # ==========================================
+  # MULTIPART FILE UPLOAD CONFIGURATION
+  # ==========================================
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2MB
+      max-request-size: 3MB
+
+# ==========================================
+# APPLICATION IMAGE STORAGE CONFIGURATION
+# ==========================================
+
+app:
+  storage:
+    upload-dir: ${AUCTION_UPLOAD_DIR:./uploads}
+    max-file-size: 2097152
+    allowed-content-types:
+      - image/png
+      - image/jpeg
+
+# ==========================================
+# SECURITY CONFIGURATION
+# ==========================================
+
 security:
+
   jwt:
     secret: 8Kx9LmP2Qv7Rt5Yn3Hs8Wc4Bd6Fg1Jk9Np2Qr7St8Uv5Wx3Za6Bc9De2Fh4Gi7Jl
     access-token-expiration: 3600000        # 1 Hour
@@ -29,8 +58,14 @@ security:
   refresh-token:
     expiration: 604800000                   # 7 Days
 
+# ==========================================
+# LOGGING CONFIGURATION
+# ==========================================
+
 logging:
+
   level:
+
     root: INFO
 
     # Application Logs
@@ -48,7 +83,9 @@ logging:
     org.springframework.transaction: INFO
 
   pattern:
+
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{correlationId}] [%thread] %logger{36} - %msg%n"
+
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{correlationId}] [%thread] %logger{36} - %msg%n"
 
   file:
@@ -60,7 +97,12 @@ logging:
       max-history: 30
       total-size-cap: 1GB
 
+# ==========================================
+# SERVER CONFIGURATION
+# ==========================================
+
 server:
+
   error:
     include-message: always
     include-binding-errors: always
