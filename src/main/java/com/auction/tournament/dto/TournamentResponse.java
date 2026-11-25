@@ -1,3 +1,4 @@
+
 package com.auction.tournament.dto;
 
 import java.time.LocalDate;
@@ -21,6 +22,8 @@ public class TournamentResponse {
 
     private String description;
 
+    private String logoUrl;
+
     private LocalDate startDate;
 
     private LocalDate endDate;
@@ -33,76 +36,83 @@ public class TournamentResponse {
 
     private LocalDateTime updatedAt;
 
-	public UUID getId() {
-		return id;
-	}
+    public UUID getId() {
+        return id;
+    }
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public LocalDate getStartDate() {
-		return startDate;
-	}
+    public String getLogoUrl() {
+        return logoUrl;
+    }
 
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
-	}
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
 
-	public LocalDate getEndDate() {
-		return endDate;
-	}
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
-	public void setEndDate(LocalDate endDate) {
-		this.endDate = endDate;
-	}
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
 
-	public TournamentStatus getStatus() {
-		return status;
-	}
+    public LocalDate getEndDate() {
+        return endDate;
+    }
 
-	public void setStatus(TournamentStatus status) {
-		this.status = status;
-	}
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
 
-	public Integer getMaxTeams() {
-		return maxTeams;
-	}
+    public TournamentStatus getStatus() {
+        return status;
+    }
 
-	public void setMaxTeams(Integer maxTeams) {
-		this.maxTeams = maxTeams;
-	}
+    public void setStatus(TournamentStatus status) {
+        this.status = status;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public Integer getMaxTeams() {
+        return maxTeams;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setMaxTeams(Integer maxTeams) {
+        this.maxTeams = maxTeams;
+    }
 
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-    
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

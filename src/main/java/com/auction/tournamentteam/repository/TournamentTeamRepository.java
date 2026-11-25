@@ -1,12 +1,15 @@
+
 package com.auction.tournamentteam.repository;
 
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.auction.tournamentteam.entity.TournamentTeam;
+import com.auction.tournamentteam.enums.TournamentTeamStatus;
 
 @Repository
 public interface TournamentTeamRepository
@@ -25,4 +28,11 @@ public interface TournamentTeamRepository
 
     List<TournamentTeam> findByTournamentIdOrderByTeam_NameAsc(
             UUID tournamentId);
+
+    // Fetch eligible tournament teams with their team details
+    // for match schedule generation.
+    @EntityGraph(attributePaths = {"team"})
+    List<TournamentTeam> findByTournamentIdAndStatus(
+            UUID tournamentId,
+            TournamentTeamStatus status);
 }
