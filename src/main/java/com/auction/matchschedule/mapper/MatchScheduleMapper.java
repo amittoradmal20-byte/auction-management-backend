@@ -43,9 +43,22 @@ public class MatchScheduleMapper {
 
         response.setId(entity.getId());
 
+        // ==========================================
+        // TOURNAMENT INFORMATION
+        // ==========================================
+
         if (entity.getTournament() != null) {
+
             response.setTournamentId(
                     entity.getTournament().getId()
+            );
+
+            response.setTournamentName(
+                    entity.getTournament().getName()
+            );
+
+            response.setTournamentLogoUrl(
+                    entity.getTournament().getLogoUrl()
             );
         }
 
@@ -209,6 +222,10 @@ public class MatchScheduleMapper {
                 response.setHomeTeamShortName(
                         homeTeam.getShortName()
                 );
+
+                response.setHomeTeamLogoUrl(
+                        homeTeam.getLogoUrl()
+                );
             }
         }
 
@@ -236,6 +253,10 @@ public class MatchScheduleMapper {
 
                 response.setAwayTeamShortName(
                         awayTeam.getShortName()
+                );
+
+                response.setAwayTeamLogoUrl(
+                        awayTeam.getLogoUrl()
                 );
             }
         }
@@ -416,5 +437,4 @@ public class MatchScheduleMapper {
                 .map(LocalDate::parse)
                 .collect(Collectors.toSet());
     }
-
 }

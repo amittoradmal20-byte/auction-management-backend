@@ -39,6 +39,8 @@ public class MatchScheduleFixtureResponse {
 
     private String homeTeamShortName;
 
+    private String homeTeamLogoUrl;
+
     private String homeTeamSource;
 
     // ==========================================
@@ -50,6 +52,8 @@ public class MatchScheduleFixtureResponse {
     private String awayTeamName;
 
     private String awayTeamShortName;
+
+    private String awayTeamLogoUrl;
 
     private String awayTeamSource;
 
@@ -77,164 +81,203 @@ public class MatchScheduleFixtureResponse {
 
     private LocalDateTime updatedAt;
 
-	public UUID getId() {
-		return id;
-	}
+    // ==========================================
+    // GETTERS AND SETTERS
+    // ==========================================
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
+    public UUID getId() {
+        return id;
+    }
 
-	public UUID getMatchScheduleId() {
-		return matchScheduleId;
-	}
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-	public void setMatchScheduleId(UUID matchScheduleId) {
-		this.matchScheduleId = matchScheduleId;
-	}
+    public UUID getMatchScheduleId() {
+        return matchScheduleId;
+    }
 
-	public Integer getMatchNumber() {
-		return matchNumber;
-	}
+    public void setMatchScheduleId(UUID matchScheduleId) {
+        this.matchScheduleId = matchScheduleId;
+    }
 
-	public void setMatchNumber(Integer matchNumber) {
-		this.matchNumber = matchNumber;
-	}
+    public Integer getMatchNumber() {
+        return matchNumber;
+    }
 
-	public Integer getRoundNumber() {
-		return roundNumber;
-	}
+    public void setMatchNumber(Integer matchNumber) {
+        this.matchNumber = matchNumber;
+    }
 
-	public void setRoundNumber(Integer roundNumber) {
-		this.roundNumber = roundNumber;
-	}
+    public Integer getRoundNumber() {
+        return roundNumber;
+    }
 
-	public String getMatchStage() {
-		return matchStage;
-	}
+    public void setRoundNumber(Integer roundNumber) {
+        this.roundNumber = roundNumber;
+    }
 
-	public void setMatchStage(String matchStage) {
-		this.matchStage = matchStage;
-	}
+    public String getMatchStage() {
+        return matchStage;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setMatchStage(String matchStage) {
+        this.matchStage = matchStage;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public UUID getHomeTournamentTeamId() {
-		return homeTournamentTeamId;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setHomeTournamentTeamId(UUID homeTournamentTeamId) {
-		this.homeTournamentTeamId = homeTournamentTeamId;
-	}
+    // ==========================================
+    // HOME TEAM GETTERS AND SETTERS
+    // ==========================================
 
-	public String getHomeTeamName() {
-		return homeTeamName;
-	}
+    public UUID getHomeTournamentTeamId() {
+        return homeTournamentTeamId;
+    }
 
-	public void setHomeTeamName(String homeTeamName) {
-		this.homeTeamName = homeTeamName;
-	}
+    public void setHomeTournamentTeamId(UUID homeTournamentTeamId) {
+        this.homeTournamentTeamId = homeTournamentTeamId;
+    }
 
-	public String getHomeTeamShortName() {
-		return homeTeamShortName;
-	}
+    public String getHomeTeamName() {
+        return homeTeamName;
+    }
 
-	public void setHomeTeamShortName(String homeTeamShortName) {
-		this.homeTeamShortName = homeTeamShortName;
-	}
+    public void setHomeTeamName(String homeTeamName) {
+        this.homeTeamName = homeTeamName;
+    }
 
-	public String getHomeTeamSource() {
-		return homeTeamSource;
-	}
+    public String getHomeTeamShortName() {
+        return homeTeamShortName;
+    }
 
-	public void setHomeTeamSource(String homeTeamSource) {
-		this.homeTeamSource = homeTeamSource;
-	}
+    public void setHomeTeamShortName(String homeTeamShortName) {
+        this.homeTeamShortName = homeTeamShortName;
+    }
 
-	public UUID getAwayTournamentTeamId() {
-		return awayTournamentTeamId;
-	}
+    public String getHomeTeamLogoUrl() {
+        return homeTeamLogoUrl;
+    }
 
-	public void setAwayTournamentTeamId(UUID awayTournamentTeamId) {
-		this.awayTournamentTeamId = awayTournamentTeamId;
-	}
+    public void setHomeTeamLogoUrl(String homeTeamLogoUrl) {
+        this.homeTeamLogoUrl = homeTeamLogoUrl;
+    }
 
-	public String getAwayTeamName() {
-		return awayTeamName;
-	}
+    public String getHomeTeamSource() {
+        return homeTeamSource;
+    }
 
-	public void setAwayTeamName(String awayTeamName) {
-		this.awayTeamName = awayTeamName;
-	}
+    public void setHomeTeamSource(String homeTeamSource) {
+        this.homeTeamSource = homeTeamSource;
+    }
 
-	public String getAwayTeamShortName() {
-		return awayTeamShortName;
-	}
+    // ==========================================
+    // AWAY TEAM GETTERS AND SETTERS
+    // ==========================================
 
-	public void setAwayTeamShortName(String awayTeamShortName) {
-		this.awayTeamShortName = awayTeamShortName;
-	}
+    public UUID getAwayTournamentTeamId() {
+        return awayTournamentTeamId;
+    }
 
-	public String getAwayTeamSource() {
-		return awayTeamSource;
-	}
+    public void setAwayTournamentTeamId(UUID awayTournamentTeamId) {
+        this.awayTournamentTeamId = awayTournamentTeamId;
+    }
 
-	public void setAwayTeamSource(String awayTeamSource) {
-		this.awayTeamSource = awayTeamSource;
-	}
+    public String getAwayTeamName() {
+        return awayTeamName;
+    }
 
-	public LocalDate getMatchDate() {
-		return matchDate;
-	}
+    public void setAwayTeamName(String awayTeamName) {
+        this.awayTeamName = awayTeamName;
+    }
 
-	public void setMatchDate(LocalDate matchDate) {
-		this.matchDate = matchDate;
-	}
+    public String getAwayTeamShortName() {
+        return awayTeamShortName;
+    }
 
-	public LocalTime getStartTime() {
-		return startTime;
-	}
+    public void setAwayTeamShortName(String awayTeamShortName) {
+        this.awayTeamShortName = awayTeamShortName;
+    }
 
-	public void setStartTime(LocalTime startTime) {
-		this.startTime = startTime;
-	}
+    public String getAwayTeamLogoUrl() {
+        return awayTeamLogoUrl;
+    }
 
-	public LocalTime getEndTime() {
-		return endTime;
-	}
+    public void setAwayTeamLogoUrl(String awayTeamLogoUrl) {
+        this.awayTeamLogoUrl = awayTeamLogoUrl;
+    }
 
-	public void setEndTime(LocalTime endTime) {
-		this.endTime = endTime;
-	}
+    public String getAwayTeamSource() {
+        return awayTeamSource;
+    }
 
-	public Integer getGroundNumber() {
-		return groundNumber;
-	}
+    public void setAwayTeamSource(String awayTeamSource) {
+        this.awayTeamSource = awayTeamSource;
+    }
 
-	public void setGroundNumber(Integer groundNumber) {
-		this.groundNumber = groundNumber;
-	}
+    // ==========================================
+    // MATCH DATE AND TIME
+    // ==========================================
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public LocalDate getMatchDate() {
+        return matchDate;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setMatchDate(LocalDate matchDate) {
+        this.matchDate = matchDate;
+    }
 
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
+    public LocalTime getStartTime() {
+        return startTime;
+    }
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
 
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    // ==========================================
+    // GROUND INFORMATION
+    // ==========================================
+
+    public Integer getGroundNumber() {
+        return groundNumber;
+    }
+
+    public void setGroundNumber(Integer groundNumber) {
+        this.groundNumber = groundNumber;
+    }
+
+    // ==========================================
+    // AUDIT INFORMATION
+    // ==========================================
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
