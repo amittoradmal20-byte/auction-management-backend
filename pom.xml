@@ -1,240 +1,243 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.6</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.auction</groupId>
 	<artifactId>auction-management-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>auction-management-backend</name>
-    <description>AI Driven Auction Management Platform</description>
+	<description>AI Driven Auction Management Platform</description>
+
+	<properties>
+		<java.version>21</java.version>
+		<mapstruct.version>1.6.3</mapstruct.version>
+		<lombok.version>1.18.38</lombok.version>
+		<jjwt.version>0.12.7</jjwt.version>
+		<springdoc.version>2.8.10</springdoc.version>
+		<openpdf.version>3.0.6</openpdf.version>
+	</properties>
+
+	<dependencies>
+
+		<!-- Spring Boot -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- PostgreSQL -->
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Flyway -->
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+
+		<!-- JWT -->
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
 
-    <properties>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 
-        <java.version>21</java.version>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 
-        <mapstruct.version>1.6.3</mapstruct.version>
+		<!-- Lombok -->
 
-        <lombok.version>1.18.38</lombok.version>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<optional>true</optional>
+		</dependency>
 
-        <jjwt.version>0.12.7</jjwt.version>
+		<!-- MapStruct -->
 
-        <springdoc.version>2.8.10</springdoc.version>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
 
-    </properties>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok-mapstruct-binding</artifactId>
+			<version>0.2.0</version>
+		</dependency>
 
-    <dependencies>
+		<!-- Swagger -->
 
-        <!-- Spring Boot -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+		<!-- PDF Generation -->
+		<dependency>
+			<groupId>com.github.librepdf</groupId>
+			<artifactId>openpdf</artifactId>
+			<version>${openpdf.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
+		<!-- DevTools -->
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+		<!-- Testing -->
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-        <!-- PostgreSQL -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+	</dependencies>
 
-        <!-- Flyway -->
+	<build>
 
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
+		<plugins>
 
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
+			<plugin>
 
-        <!-- JWT -->
+				<groupId>org.springframework.boot</groupId>
 
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${jjwt.version}</version>
-        </dependency>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${jjwt.version}</version>
-            <scope>runtime</scope>
-        </dependency>
+				<configuration>
 
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>${jjwt.version}</version>
-            <scope>runtime</scope>
-        </dependency>
+					<excludes>
 
-        <!-- Lombok -->
+						<exclude>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <optional>true</optional>
-        </dependency>
+							<groupId>org.projectlombok</groupId>
 
-        <!-- MapStruct -->
+							<artifactId>lombok</artifactId>
 
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
+						</exclude>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok-mapstruct-binding</artifactId>
-            <version>0.2.0</version>
-        </dependency>
+					</excludes>
 
-        <!-- Swagger -->
+				</configuration>
 
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc.version}</version>
-        </dependency>
+			</plugin>
 
-        <!-- DevTools -->
+			<plugin>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
+				<groupId>org.apache.maven.plugins</groupId>
 
-        <!-- Testing -->
+				<artifactId>maven-compiler-plugin</artifactId>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+				<version>3.13.0</version>
 
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+				<configuration>
 
-    </dependencies>
+					<release>21</release>
 
-    <build>
+					<annotationProcessorPaths>
 
-        <plugins>
+						<path>
 
-            <plugin>
+							<groupId>org.projectlombok</groupId>
 
-                <groupId>org.springframework.boot</groupId>
+							<artifactId>lombok</artifactId>
 
-                <artifactId>spring-boot-maven-plugin</artifactId>
+							<version>${lombok.version}</version>
 
-                <configuration>
+						</path>
 
-                    <excludes>
+						<path>
 
-                        <exclude>
+							<groupId>org.projectlombok</groupId>
 
-                            <groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
 
-                            <artifactId>lombok</artifactId>
+							<version>0.2.0</version>
 
-                        </exclude>
+						</path>
 
-                    </excludes>
+						<path>
 
-                </configuration>
+							<groupId>org.mapstruct</groupId>
 
-            </plugin>
+							<artifactId>mapstruct-processor</artifactId>
 
-            <plugin>
+							<version>${mapstruct.version}</version>
 
-                <groupId>org.apache.maven.plugins</groupId>
+						</path>
 
-                <artifactId>maven-compiler-plugin</artifactId>
+					</annotationProcessorPaths>
 
-                <version>3.13.0</version>
+				</configuration>
 
-                <configuration>
+			</plugin>
 
-                    <release>21</release>
+		</plugins>
 
-                    <annotationProcessorPaths>
-
-                        <path>
-
-                            <groupId>org.projectlombok</groupId>
-
-                            <artifactId>lombok</artifactId>
-
-                            <version>${lombok.version}</version>
-
-                        </path>
-
-                        <path>
-
-                            <groupId>org.projectlombok</groupId>
-
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-
-                            <version>0.2.0</version>
-
-                        </path>
-
-                        <path>
-
-                            <groupId>org.mapstruct</groupId>
-
-                            <artifactId>mapstruct-processor</artifactId>
-
-                            <version>${mapstruct.version}</version>
-
-                        </path>
-
-                    </annotationProcessorPaths>
-
-                </configuration>
-
-            </plugin>
-
-        </plugins>
-
-    </build>
+	</build>
 
 </project>

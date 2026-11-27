@@ -1,11 +1,18 @@
-
 package com.auction.matchschedule.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import org.springframework.http.CacheControl;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +25,7 @@ import com.auction.matchschedule.dto.response.MatchScheduleResponse;
 import com.auction.matchschedule.dto.response.MatchScheduleTeamDrawResponse;
 
 import com.auction.matchschedule.service.MatchScheduleService;
+import com.auction.matchschedule.service.MatchSchedulePdfService;
 
 import jakarta.validation.Valid;
 
@@ -28,10 +36,14 @@ public class MatchScheduleController {
 
     private final MatchScheduleService matchScheduleService;
 
+    private final MatchSchedulePdfService matchSchedulePdfService;
+
     public MatchScheduleController(
-            MatchScheduleService matchScheduleService) {
+            MatchScheduleService matchScheduleService,
+            MatchSchedulePdfService matchSchedulePdfService) {
 
         this.matchScheduleService = matchScheduleService;
+        this.matchSchedulePdfService = matchSchedulePdfService;
     }
 
     // ==========================================
@@ -170,5 +182,110 @@ public class MatchScheduleController {
         matchScheduleService.deleteSchedule(scheduleId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    // ==========================================
+    // 10. DOWNLOAD MATCH SCHEDULE PDF
+    // ==========================================
+
+    @GetMapping(
+            value = "/{scheduleId}/pdf",
+            produces = MediaType.APPLICATION_PDF_VALUE
+    )
+    public ResponseEntity<byte[]> downloadSchedulePdf(
+
+            @PathVariable UUID scheduleId,
+
+            @RequestParam(
+                    name = "tournamentTeamId",
+                    required = false
+            )
+            UUID tournamentTeamId,
+
+            @RequestParam(
+                    name = "matchDate",
+                    required = false
+            )
+            @DateTimeFormat(
+                    iso = DateTimeFormat.ISO.DATE
+            )
+            LocalDate matchDate) {
+
+        // Generate complete or filtered PDF
+
+        byte[] pdfBytes =
+                matchSchedulePdfService.generateSchedulePdf(
+                        scheduleId,
+                        tournamentTeamId,
+                        matchDate
+                );
+
+        // Build dynamic PDF filename
+
+        String filename = buildPdfFilename(
+                scheduleId,
+                tournamentTeamId,
+                matchDate
+        );
+
+        // Configure attachment download
+
+        ContentDisposition contentDisposition =
+                ContentDisposition.attachment()
+                        .filename(filename)
+                        .build();
+
+        // Return generated PDF
+
+        return ResponseEntity.ok()
+
+                .contentType(MediaType.APPLICATION_PDF)
+
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        contentDisposition.toString()
+                )
+
+                .cacheControl(CacheControl.noStore())
+
+                .contentLength(pdfBytes.length)
+
+                .body(pdfBytes);
+    }
+
+    // ==========================================
+    // 11. BUILD PDF FILENAME
+    // ==========================================
+
+    private String buildPdfFilename(
+            UUID scheduleId,
+            UUID tournamentTeamId,
+            LocalDate matchDate) {
+
+        StringBuilder filename =
+                new StringBuilder("match-schedule");
+
+        filename.append("-")
+                .append(scheduleId);
+
+        // Append selected team identifier
+
+        if (tournamentTeamId != null) {
+
+            filename.append("-team-")
+                    .append(tournamentTeamId);
+        }
+
+        // Append selected match date
+
+        if (matchDate != null) {
+
+            filename.append("-")
+                    .append(matchDate);
+        }
+
+        filename.append(".pdf");
+
+        return filename.toString();
     }
 }
