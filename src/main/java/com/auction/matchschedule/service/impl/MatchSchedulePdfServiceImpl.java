@@ -194,8 +194,10 @@ public class MatchSchedulePdfServiceImpl
                     document,
                     outputStream
             );
+            Image tournamentWatermark = pdfImageUtil.loadImage(
+                    schedule.getTournamentLogoUrl(), 260f, 260f, imageCache);
             writer.setPageEvent(new MatchSchedulePdfFooter(
-                    resolveTournamentName(schedule)
+                    resolveTournamentName(schedule), tournamentWatermark
             ));
             // PDF metadata
             document.addTitle(
@@ -213,32 +215,31 @@ public class MatchSchedulePdfServiceImpl
             );
             document.open();
             // Professional tournament and team branding
-            addTournamentHeader(
-                    document,
-                    schedule,
-                    selectedTeam,
-                    matchDate,
-                    imageCache
-            );
+            if (selectedTeam != null) {
+                addCompactTeamHeader(document, schedule, selectedTeam, matchDate, imageCache);
+            } else {
+                addTournamentHeader(document, schedule, selectedTeam, matchDate, imageCache);
+            }
+            addDocumentStatus(document, schedule);
             // Overall tournament information
-            addScheduleInformation(
-                    document,
-                    schedule,
-                    allFixtures
-            );
-            // Filtered match summary
-            addFilterInformation(
-                    document,
-                    filteredFixtures,
-                    selectedTeam,
-                    matchDate
-            );
+            if (selectedTeam != null) {
+                addCompactTeamSummary(document, schedule, filteredFixtures, matchDate, tournamentTeamId);
+                addCompactTournamentOverview(document, schedule, allFixtures.size(), matchDate);
+            } else {
+                addScheduleInformation(document, schedule, allFixtures);
+                addFilterInformation(document, filteredFixtures, selectedTeam, matchDate);
+            }
+            // Showcase only for the complete schedule.
+            if (tournamentTeamId == null && matchDate == null) {
+                addParticipatingTeams(document, allFixtures, imageCache);
+                addPlayoffRoadmap(document, allFixtures);
+            }
             // Filtered match fixtures
             addMatchFixtures(
                     document,
                     allFixtures,
                     filteredFixtures,
-                    imageCache
+                    imageCache, tournamentTeamId
             );
             document.close();
             byte[] pdfBytes =
@@ -380,6 +381,270 @@ public class MatchSchedulePdfServiceImpl
     // ==========================================
     // 6. PROFESSIONAL TOURNAMENT HEADER
     // ==========================================
+    private void addDocumentStatus(Document document, MatchScheduleResponse schedule)
+            throws Exception {
+        String status = safeText(schedule.getStatus()).toUpperCase(Locale.ROOT);
+        String message;
+        Color background;
+        Color foreground;
+        switch (status) {
+            case "PUBLISHED" -> {
+                message = "Official published schedule";
+                background = new Color(220, 252, 231);
+                foreground = new Color(22, 101, 52);
+            }
+            case "CANCELLED" -> {
+                message = "Cancelled - schedule no longer valid";
+                background = new Color(254, 226, 226);
+                foreground = new Color(153, 27, 27);
+            }
+            default -> {
+                message = "Not published - subject to change";
+                background = PdfStyleUtil.LIGHT_GOLD;
+                foreground = PdfStyleUtil.DARK_GOLD_TEXT;
+            }
+        }
+        PdfPTable strip = new PdfPTable(2);
+        strip.setWidthPercentage(100);
+        strip.setWidths(new float[] { 3f, 2f });
+        strip.setKeepTogether(true);
+        strip.setSpacingAfter(5f);
+        PdfPCell statusCell = PdfStyleUtil.createBaseCell(background);
+        statusCell.setPadding(4f);
+        statusCell.setBorderColor(PdfStyleUtil.PREMIUM_GOLD);
+        statusCell.addElement(PdfStyleUtil.centeredParagraph(
+                status.replace('_', ' '), PdfStyleUtil.boldFont(10f, foreground)));
+        statusCell.addElement(PdfStyleUtil.centeredParagraph(
+                message, PdfStyleUtil.regularFont(8f, foreground)));
+        strip.addCell(statusCell);
+        PdfPCell versionCell = PdfStyleUtil.createBrandingCell();
+        versionCell.setPadding(4f);
+        versionCell.addElement(PdfStyleUtil.centeredParagraph(
+                "Schedule Version: " + safeText(schedule.getGenerationNumber()),
+                PdfStyleUtil.boldFont(10f, PdfStyleUtil.GOLD_HIGHLIGHT)));
+        versionCell.addElement(PdfStyleUtil.centeredParagraph(
+                "Fixture generation number", PdfStyleUtil.regularFont(8f, PdfStyleUtil.WHITE)));
+        strip.addCell(versionCell);
+        document.add(strip);
+    }
+
+    private void addCompactTeamHeader(Document document, MatchScheduleResponse schedule,
+            TeamResponse team, LocalDate matchDate, Map<String, Image> imageCache)
+            throws Exception {
+        PdfPTable header = new PdfPTable(3);
+        header.setWidthPercentage(100);
+        header.setWidths(new float[] {1.2f, 5f, 1.2f});
+        header.setKeepTogether(true);
+        header.setSpacingAfter(5f);
+        header.addCell(createCompactBrandLogo(schedule.getTournamentLogoUrl(),
+                "TOURNAMENT", imageCache));
+        PdfPCell title = PdfStyleUtil.createBrandingCell();
+        title.setPadding(6f);
+        title.addElement(PdfStyleUtil.centeredParagraph(resolveTournamentName(schedule),
+                PdfStyleUtil.boldFont(13f, PdfStyleUtil.GOLD_HIGHLIGHT)));
+        title.addElement(PdfStyleUtil.centeredParagraph(resolveSelectedTeamName(team),
+                PdfStyleUtil.boldFont(18f, PdfStyleUtil.WHITE)));
+        title.addElement(PdfStyleUtil.centeredParagraph(resolveScheduleSubtitle(team, matchDate),
+                PdfStyleUtil.boldFont(9f, PdfStyleUtil.LIGHT_GOLD)));
+        addHeaderDateInformation(title, schedule, matchDate);
+        header.addCell(title);
+        header.addCell(createCompactBrandLogo(team.getLogoUrl(),
+                hasText(team.getShortName()) ? team.getShortName() : "TEAM", imageCache));
+        document.add(header);
+    }
+
+    private PdfPCell createCompactBrandLogo(String url, String fallback,
+            Map<String, Image> imageCache) {
+        PdfPCell cell = PdfStyleUtil.createBrandingCell();
+        cell.setPadding(5f);
+        Image logo = pdfImageUtil.loadImage(url, 58f, 58f, imageCache);
+        if (logo != null) {
+            logo.setAlignment(Element.ALIGN_CENTER);
+            cell.addElement(logo);
+        } else {
+            cell.addElement(PdfStyleUtil.centeredParagraph(fallback,
+                    PdfStyleUtil.boldFont(9f, PdfStyleUtil.GOLD_HIGHLIGHT)));
+        }
+        return cell;
+    }
+
+    private void addCompactTeamSummary(Document document, MatchScheduleResponse schedule,
+            List<MatchScheduleFixtureResponse> fixtures, LocalDate matchDate,
+            UUID tournamentTeamId) throws Exception {
+        PdfPTable summary = new PdfPTable(12);
+        summary.setWidthPercentage(100);
+        summary.setKeepTogether(true);
+        summary.setSpacingAfter(5f);
+        summary.addCell(PdfStyleUtil.createPremiumSectionHeader("TEAM MATCH SUMMARY", 12));
+        long league = fixtures.stream().filter(f -> "LEAGUE".equalsIgnoreCase(f.getMatchStage())).count();
+        long playoff = fixtures.stream().filter(f -> isPlayoffStage(f.getMatchStage())).count();
+        long playingDays = fixtures.stream()
+                .map(MatchScheduleFixtureResponse::getMatchDate)
+                .filter(date -> date != null)
+                .distinct().count();
+        addTeamSummaryCard(summary, "League Matches", league, false);
+        addTeamSummaryCard(summary, "Playoff Matches", playoff, false);
+        addTeamSummaryCard(summary, "Playing Days", playingDays, false);
+        addTeamSummaryCard(summary, "Total Matches", fixtures.size(), true);
+        if (fixtures.size() - league - playoff > 0) {
+            addTeamSummaryNote(summary, "Other / Unclassified Matches: " + (fixtures.size() - league - playoff));
+        }
+        Comparator<MatchScheduleFixtureResponse> chronological = Comparator
+                .comparing(MatchScheduleFixtureResponse::getMatchDate)
+                .thenComparing(MatchScheduleFixtureResponse::getStartTime);
+        List<MatchScheduleFixtureResponse> timed = fixtures.stream()
+                .filter(f -> f.getMatchDate() != null && f.getStartTime() != null)
+                .sorted(chronological).toList();
+        summary.addCell(createTeamTimingCard("FIRST MATCH", timed.isEmpty() ? null : timed.getFirst(),
+                tournamentTeamId, fixtures.isEmpty()));
+        summary.addCell(createTeamTimingCard("LAST MATCH", timed.isEmpty() ? null : timed.getLast(),
+                tournamentTeamId, fixtures.isEmpty()));
+        Map<LocalDate, Long> daily = new TreeMap<>();
+        long undated = 0;
+        for (MatchScheduleFixtureResponse fixture : fixtures) {
+            if (fixture.getMatchDate() == null) undated++;
+            else daily.merge(fixture.getMatchDate(), 1L, Long::sum);
+        }
+        summary.addCell(PdfStyleUtil.createPremiumSectionHeader("DAILY MATCH DISTRIBUTION", 12));
+        for (Map.Entry<LocalDate, Long> entry : daily.entrySet()) {
+            addDailyDistributionRow(summary,
+                    entry.getKey().format(DateTimeFormatter.ofPattern("EEE, dd MMM yyyy", Locale.ENGLISH)),
+                    entry.getValue(), fixtures.size());
+        }
+        if (undated > 0) {
+            addDailyDistributionRow(summary, "Date TBD", undated, fixtures.size());
+        }
+        if (fixtures.isEmpty()) {
+            addTeamSummaryNote(summary, "No matches scheduled for the selected filter.");
+        }
+        document.add(summary);
+    }
+
+    private void addCompactTournamentOverview(Document document, MatchScheduleResponse schedule,
+            int totalFixtures, LocalDate matchDate) throws Exception {
+        PdfPTable overview = new PdfPTable(12);
+        overview.setWidthPercentage(100);
+        overview.setKeepTogether(true);
+        overview.setSpacingAfter(5f);
+        overview.addCell(PdfStyleUtil.createPremiumSectionHeader("TOURNAMENT OVERVIEW", 12));
+        addTournamentOverviewCard(overview, "Teams", schedule.getTotalTeams(), false);
+        addTournamentOverviewCard(overview, "League Matches", schedule.getTotalLeagueMatches(), false);
+        addTournamentOverviewCard(overview, "Playoff Matches", schedule.getTotalPlayoffMatches(), false);
+        addTournamentOverviewCard(overview, "Total Fixtures", totalFixtures, true);
+        addOverviewInformation(overview, "Schedule Name", safeText(schedule.getName()));
+        addOverviewInformation(overview, "Tournament Period",
+                formatDate(schedule.getStartDate()) + " - " + formatDate(schedule.getEndDate()));
+        addOverviewInformation(overview, "League Format", formatLabel(schedule.getLeagueFormat()));
+        addOverviewInformation(overview, "Playoff Format", formatLabel(schedule.getPlayoffFormat()));
+        addTeamSummaryNote(overview, "Selected Date: " + (matchDate == null ? "All Dates" : formatDate(matchDate))
+                + " | Playoff fixtures included only for confirmed participants.");
+        document.add(overview);
+    }
+
+    private void addTournamentOverviewCard(PdfPTable table, String label, Object value, boolean highlighted) {
+        PdfPCell cell = createSummaryCell(label, value, highlighted);
+        cell.setColspan(3);
+        cell.setPadding(3f);
+        table.addCell(cell);
+    }
+
+    private void addOverviewInformation(PdfPTable table, String label, String value) {
+        PdfPCell cell = createInformationCell(label, value);
+        cell.setColspan(6);
+        cell.setPadding(3f);
+        table.addCell(cell);
+    }
+
+    private void addDailyDistributionRow(PdfPTable table, String dateLabel,
+            long count, long total) throws Exception {
+        PdfPCell date = PdfStyleUtil.createBaseCell(PdfStyleUtil.PREMIUM_IVORY);
+        date.setColspan(5);
+        date.setPadding(3f);
+        date.addElement(new Paragraph(dateLabel,
+                PdfStyleUtil.boldFont(9f, PdfStyleUtil.PRIMARY_NAVY)));
+        table.addCell(date);
+
+        PdfPCell chart = PdfStyleUtil.createBaseCell(PdfStyleUtil.PREMIUM_IVORY);
+        chart.setColspan(5);
+        chart.setPadding(4f);
+        double fraction = total > 0 ? Math.min(1d, Math.max(0d, (double) count / total)) : 0d;
+        PdfPTable bar = new PdfPTable(fraction > 0d && fraction < 1d ? 2 : 1);
+        bar.setWidthPercentage(100f);
+        if (fraction > 0d && fraction < 1d) {
+            bar.setWidths(new float[] {(float) fraction, (float) (1d - fraction)});
+            bar.addCell(createDistributionBarSegment(PdfStyleUtil.PREMIUM_GOLD));
+            bar.addCell(createDistributionBarSegment(PdfStyleUtil.CHAMPAGNE_BORDER));
+        } else {
+            bar.addCell(createDistributionBarSegment(fraction == 1d
+                    ? PdfStyleUtil.PREMIUM_GOLD : PdfStyleUtil.CHAMPAGNE_BORDER));
+        }
+        chart.addElement(bar);
+        chart.addElement(PdfStyleUtil.centeredParagraph(
+                String.format(Locale.ENGLISH, "%.1f%%", fraction * 100d), PdfStyleUtil.noteFont()));
+        table.addCell(chart);
+
+        PdfPCell matches = PdfStyleUtil.createBaseCell(PdfStyleUtil.LIGHT_GOLD);
+        matches.setColspan(2);
+        matches.setPadding(3f);
+        matches.addElement(PdfStyleUtil.centeredParagraph(Long.toString(count),
+                PdfStyleUtil.boldFont(12f, PdfStyleUtil.PRIMARY_NAVY)));
+        matches.addElement(PdfStyleUtil.centeredParagraph(count == 1 ? "Match" : "Matches",
+                PdfStyleUtil.noteFont()));
+        table.addCell(matches);
+    }
+
+    private PdfPCell createDistributionBarSegment(Color color) {
+        PdfPCell segment = PdfStyleUtil.createBorderlessCell(color);
+        segment.setPadding(0f);
+        segment.setFixedHeight(7f);
+        return segment;
+    }
+
+    private PdfPCell createTeamTimingCard(String label, MatchScheduleFixtureResponse fixture,
+            UUID tournamentTeamId, boolean empty) {
+        PdfPCell cell = PdfStyleUtil.createBaseCell(PdfStyleUtil.PREMIUM_IVORY);
+        cell.setColspan(6);
+        cell.setPadding(4f);
+        cell.setBorderColor(PdfStyleUtil.PREMIUM_GOLD);
+        cell.addElement(PdfStyleUtil.centeredParagraph(label,
+                PdfStyleUtil.boldFont(9f, PdfStyleUtil.DARK_GOLD_TEXT)));
+        if (fixture == null) {
+            cell.addElement(PdfStyleUtil.centeredParagraph(empty ? "No matches" : "Timing TBD",
+                    PdfStyleUtil.boldFont(13f, PdfStyleUtil.PRIMARY_NAVY)));
+            return cell;
+        }
+        boolean home = tournamentTeamId.equals(fixture.getHomeTournamentTeamId());
+        String opponent = home
+                ? resolveTeamDisplayName(fixture.getAwayTeamName(), fixture.getAwayTeamShortName(), fixture.getAwayTeamSource())
+                : resolveTeamDisplayName(fixture.getHomeTeamName(), fixture.getHomeTeamShortName(), fixture.getHomeTeamSource());
+        cell.addElement(PdfStyleUtil.centeredParagraph("Match " + safeText(fixture.getMatchNumber())
+                + " | " + formatDate(fixture.getMatchDate()), PdfStyleUtil.noteFont()));
+        cell.addElement(PdfStyleUtil.centeredParagraph(formatTime(fixture.getStartTime()),
+                PdfStyleUtil.boldFont(16f, PdfStyleUtil.PRIMARY_NAVY)));
+        cell.addElement(PdfStyleUtil.centeredParagraph("vs " + opponent,
+                PdfStyleUtil.boldFont(9f, PdfStyleUtil.PRIMARY_NAVY)));
+        return cell;
+    }
+
+    private void addTeamSummaryCard(PdfPTable table, String label,
+            long value, boolean highlighted) {
+        PdfPCell cell = createSummaryCell(label, value, highlighted);
+        cell.setColspan(3);
+        cell.setPadding(4f);
+        table.addCell(cell);
+    }
+
+    private void addTeamSummaryNote(PdfPTable table, String text) {
+        PdfPCell cell = PdfStyleUtil.createBaseCell(PdfStyleUtil.PREMIUM_IVORY);
+        cell.setColspan(12);
+        cell.setPadding(4f);
+        cell.setBorderColor(PdfStyleUtil.CHAMPAGNE_BORDER);
+        Paragraph note = new Paragraph(text, PdfStyleUtil.noteFont());
+        note.setAlignment(Element.ALIGN_LEFT);
+        cell.addElement(note);
+        table.addCell(cell);
+    }
+
     private void addTournamentHeader(
             Document document,
             MatchScheduleResponse schedule,
@@ -677,6 +942,168 @@ public class MatchSchedulePdfServiceImpl
         document.add(summary);
     }
 
+    // Use the generated fixture snapshot, not the current tournament roster.
+    private record ShowcaseTeam(String name, String shortName, String logoUrl) {}
+
+    private void addParticipatingTeams(Document document,
+            List<MatchScheduleFixtureResponse> fixtures,
+            Map<String, Image> imageCache) throws Exception {
+        Map<UUID, ShowcaseTeam> teams = new HashMap<>();
+        for (MatchScheduleFixtureResponse fixture : fixtures) {
+            collectShowcaseTeam(teams, fixture.getHomeTournamentTeamId(),
+                    fixture.getHomeTeamName(), fixture.getHomeTeamShortName(),
+                    fixture.getHomeTeamLogoUrl());
+            collectShowcaseTeam(teams, fixture.getAwayTournamentTeamId(),
+                    fixture.getAwayTeamName(), fixture.getAwayTeamShortName(),
+                    fixture.getAwayTeamLogoUrl());
+        }
+        if (teams.isEmpty()) {
+            return;
+        }
+        List<ShowcaseTeam> ordered = new ArrayList<>(teams.values());
+        ordered.sort(Comparator.comparing(ShowcaseTeam::name,
+                String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(ShowcaseTeam::shortName));
+        int columns = Math.min(6, ordered.size());
+        PdfPTable showcase = new PdfPTable(columns);
+        showcase.setWidthPercentage(100);
+        showcase.setSpacingAfter(PdfStyleUtil.MEDIUM_SPACING);
+        showcase.setKeepTogether(ordered.size() <= 6);
+        showcase.addCell(PdfStyleUtil.createPremiumSectionHeader(
+                "PARTICIPATING TEAMS", columns));
+        PdfPCell subtitle = PdfStyleUtil.createBrandingCell();
+        subtitle.setColspan(columns);
+        subtitle.setPadding(3);
+        subtitle.addElement(PdfStyleUtil.centeredParagraph(
+                ordered.size() + " TEAMS - ONE CHAMPION",
+                PdfStyleUtil.boldFont(10, PdfStyleUtil.LIGHT_GOLD)));
+        showcase.addCell(subtitle);
+        showcase.setHeaderRows(2);
+        showcase.setSplitLate(true);
+        for (ShowcaseTeam team : ordered) {
+            PdfPCell cell = PdfStyleUtil.createBrandingCell();
+            cell.setBackgroundColor(PdfStyleUtil.SECONDARY_NAVY);
+            cell.setPadding(3);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            Image logo = pdfImageUtil.loadImage(team.logoUrl(), 45f, 45f, imageCache);
+            if (logo != null) {
+                logo.setAlignment(Element.ALIGN_CENTER);
+                logo.setSpacingAfter(2);
+                cell.addElement(logo);
+            } else {
+                Paragraph fallback = PdfStyleUtil.centeredParagraph(team.shortName(),
+                        PdfStyleUtil.boldFont(12, PdfStyleUtil.LIGHT_GOLD));
+                fallback.setSpacingBefore(8);
+                fallback.setSpacingAfter(8);
+                cell.addElement(fallback);
+            }
+            cell.addElement(PdfStyleUtil.centeredParagraph(team.name(),
+                    PdfStyleUtil.boldFont(9, PdfStyleUtil.WHITE)));
+            cell.addElement(PdfStyleUtil.centeredParagraph(team.shortName(),
+                    PdfStyleUtil.regularFont(8, PdfStyleUtil.LIGHT_GOLD)));
+            showcase.addCell(cell);
+        }
+        int remaining = (columns - ordered.size() % columns) % columns;
+        if (remaining > 0) {
+            PdfPCell filler = PdfStyleUtil.createBrandingCell();
+            filler.setColspan(remaining);
+            showcase.addCell(filler);
+        }
+        PdfPCell closing = PdfStyleUtil.createBrandingCell();
+        closing.setColspan(columns);
+        closing.setPadding(3);
+        closing.addElement(PdfStyleUtil.centeredParagraph("THE BATTLE FOR GLORY",
+                PdfStyleUtil.boldFont(9, PdfStyleUtil.LIGHT_GOLD)));
+        showcase.addCell(closing);
+        document.add(showcase);
+    }
+
+    // Qualification sources are taken from generated fixtures, never inferred
+    // from fixed match numbers or a hardcoded playoff format.
+    private void addPlayoffRoadmap(Document document,
+            List<MatchScheduleFixtureResponse> fixtures) throws Exception {
+        List<MatchScheduleFixtureResponse> playoffs = fixtures.stream()
+                .filter(f -> isPlayoffStage(f.getMatchStage()))
+                .sorted(Comparator.comparing(MatchScheduleFixtureResponse::getMatchNumber,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+        if (playoffs.isEmpty()) {
+            return;
+        }
+        PdfPTable roadmap = new PdfPTable(2);
+        roadmap.setWidthPercentage(100);
+        roadmap.setSpacingAfter(PdfStyleUtil.MEDIUM_SPACING);
+        roadmap.setKeepTogether(playoffs.size() <= 4);
+        roadmap.setSplitLate(true);
+        roadmap.addCell(PdfStyleUtil.createPremiumSectionHeader(
+                "ROAD TO THE GRAND FINAL", 2));
+        roadmap.setHeaderRows(1);
+        int pending = 0;
+        for (int i = 0; i < playoffs.size(); i++) {
+            MatchScheduleFixtureResponse fixture = playoffs.get(i);
+            boolean finalMatch = "FINAL".equalsIgnoreCase(safeText(fixture.getMatchStage()));
+            // Pair consecutive non-final cards; expand an unpaired card
+            // to the full row instead of inserting a decorative empty cell.
+            boolean nextIsNonFinal = i + 1 < playoffs.size()
+                    && !"FINAL".equalsIgnoreCase(
+                            safeText(playoffs.get(i + 1).getMatchStage()));
+            boolean fullWidth = finalMatch || (pending == 0 && !nextIsNonFinal);
+            PdfPCell cell = PdfStyleUtil.createBrandingCell();
+            cell.setColspan(fullWidth ? 2 : 1);
+            cell.setBackgroundColor(finalMatch ? PdfStyleUtil.LIGHT_GOLD
+                    : PdfStyleUtil.SECONDARY_NAVY);
+            cell.setPadding(7);
+            Color titleColor = finalMatch ? PdfStyleUtil.PRIMARY_NAVY : PdfStyleUtil.LIGHT_GOLD;
+            Color bodyColor = finalMatch ? PdfStyleUtil.PRIMARY_NAVY : PdfStyleUtil.WHITE;
+            cell.addElement(PdfStyleUtil.centeredParagraph(
+                    "MATCH " + safeText(fixture.getMatchNumber()) + " - "
+                            + formatLabel(fixture.getMatchStage()),
+                    PdfStyleUtil.boldFont(11, titleColor)));
+            addRoadmapParticipant(cell, fixture.getHomeTeamName(),
+                    fixture.getHomeTeamShortName(), fixture.getHomeTeamSource(), bodyColor);
+            cell.addElement(PdfStyleUtil.centeredParagraph("VS",
+                    PdfStyleUtil.boldFont(9, titleColor)));
+            addRoadmapParticipant(cell, fixture.getAwayTeamName(),
+                    fixture.getAwayTeamShortName(), fixture.getAwayTeamSource(), bodyColor);
+            cell.addElement(PdfStyleUtil.centeredParagraph(
+                    formatDate(fixture.getMatchDate()) + " | "
+                            + formatTime(fixture.getStartTime()) + " - "
+                            + formatTime(fixture.getEndTime()),
+                    PdfStyleUtil.regularFont(8, bodyColor)));
+            roadmap.addCell(cell);
+            pending = fullWidth ? 0 : (pending + 1) % 2;
+        }
+        document.add(roadmap);
+    }
+
+    private void addRoadmapParticipant(PdfPCell cell, String name,
+            String shortName, String source, Color color) {
+        String participant = resolveTeamDisplayName(name, shortName, source);
+        cell.addElement(PdfStyleUtil.centeredParagraph(participant,
+                PdfStyleUtil.boldFont(10, color)));
+        if ((hasText(name) || hasText(shortName)) && hasText(source)) {
+            String qualification = formatParticipantSource(source);
+            if (!qualification.equalsIgnoreCase(participant)
+                    && !"To Be Decided".equals(qualification)) {
+                cell.addElement(PdfStyleUtil.centeredParagraph(qualification,
+                        PdfStyleUtil.regularFont(8, color)));
+            }
+        }
+    }
+
+    private void collectShowcaseTeam(Map<UUID, ShowcaseTeam> teams, UUID id,
+            String name, String shortName, String logoUrl) {
+        if (id == null) {
+            return; // Unresolved playoff participants are not teams.
+        }
+        String displayName = hasText(name) ? name.trim()
+                : hasText(shortName) ? shortName.trim() : "Team";
+        String abbreviation = hasText(shortName) ? shortName.trim()
+                : displayName.substring(0, Math.min(3, displayName.length()))
+                        .toUpperCase(Locale.ENGLISH);
+        teams.putIfAbsent(id, new ShowcaseTeam(displayName, abbreviation, logoUrl));
+    }
+
     private void addInformationRow(PdfPTable table, String leftLabel,
             String leftValue, String rightLabel, String rightValue) {
         table.addCell(createInformationCell(leftLabel, leftValue));
@@ -792,7 +1219,7 @@ public class MatchSchedulePdfServiceImpl
             Document document,
             List<MatchScheduleFixtureResponse> allFixtures,
             List<MatchScheduleFixtureResponse> fixtures,
-            Map<String, Image> imageCache) throws Exception {
+            Map<String, Image> imageCache, UUID tournamentTeamId) throws Exception {
 
         // Day and section headers identify non-empty fixture tables.
         if (fixtures.isEmpty()) {
@@ -825,17 +1252,17 @@ public class MatchSchedulePdfServiceImpl
             int dayNumber = scheduleDates.indexOf(entry.getKey()) + 1;
             addDailyFixtureTable(document,
                     "DAY " + dayNumber + " - " + entry.getKey().format(dayFormatter),
-                    entry.getValue(), imageCache);
+                    entry.getValue(), imageCache, tournamentTeamId);
         }
         if (!undated.isEmpty()) {
-            addDailyFixtureTable(document, "DATE TO BE CONFIRMED", undated, imageCache);
+            addDailyFixtureTable(document, "DATE TO BE CONFIRMED", undated, imageCache, tournamentTeamId);
         }
     }
 
     private void addDailyFixtureTable(
             Document document, String dayTitle,
             List<MatchScheduleFixtureResponse> fixtures,
-            Map<String, Image> imageCache) throws Exception {
+            Map<String, Image> imageCache, UUID tournamentTeamId) throws Exception {
 
         long league = fixtures.stream().filter(f ->
                 "LEAGUE".equalsIgnoreCase(f.getMatchStage())).count();
@@ -863,19 +1290,35 @@ public class MatchSchedulePdfServiceImpl
             }
         }
 
-        addFixtureSection(document, dayTitle, summary, "LEAGUE FIXTURES",
-                leagueFixtures, imageCache);
-        addFixtureSection(document, dayTitle, summary, "PLAYOFF FIXTURES",
-                playoffFixtures, imageCache);
-        addFixtureSection(document, dayTitle, summary, "OTHER FIXTURES",
-                otherFixtures, imageCache);
+        boolean firstSection = true;
+        if (!leagueFixtures.isEmpty()) {
+            addFixtureSection(document, dayTitle, summary, "LEAGUE FIXTURES",
+                    leagueFixtures, imageCache, firstSection, tournamentTeamId);
+            firstSection = false;
+        }
+        if (!playoffFixtures.isEmpty()) {
+            addFixtureSection(document, dayTitle, summary, "PLAYOFF FIXTURES",
+                    playoffFixtures, imageCache, firstSection, tournamentTeamId);
+            firstSection = false;
+        }
+        if (!otherFixtures.isEmpty()) {
+            addFixtureSection(document, dayTitle, summary, "OTHER FIXTURES",
+                    otherFixtures, imageCache, firstSection, tournamentTeamId);
+            firstSection = false;
+        }
         for (MatchScheduleFixtureResponse fixture : finalFixtures.stream()
                 .sorted(Comparator.comparing(MatchScheduleFixtureResponse::getStartTime,
                         Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(MatchScheduleFixtureResponse::getMatchNumber,
                                 Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList()) {
-            addGrandFinalCard(document, dayTitle, summary, fixture, imageCache);
+            if (tournamentTeamId == null) {
+                addGrandFinalCard(document, dayTitle, summary, fixture, imageCache, firstSection);
+            } else {
+                addFixtureSection(document, dayTitle, summary, "GRAND FINAL",
+                        List.of(fixture), imageCache, firstSection, tournamentTeamId);
+            }
+            firstSection = false;
         }
 
     }
@@ -883,7 +1326,7 @@ public class MatchSchedulePdfServiceImpl
     private void addGrandFinalCard(
             Document document, String dayTitle, String summary,
             MatchScheduleFixtureResponse fixture,
-            Map<String, Image> imageCache) throws Exception {
+            Map<String, Image> imageCache, boolean firstSection) throws Exception {
         PdfPTable card = new PdfPTable(3);
         card.setWidthPercentage(100);
         card.setWidths(new float[]{ 4f, 1f, 4f });
@@ -893,10 +1336,15 @@ public class MatchSchedulePdfServiceImpl
 
         PdfPCell heading = PdfStyleUtil.createBrandingCell();
         heading.setColspan(3);
-        heading.addElement(PdfStyleUtil.centeredParagraph(dayTitle,
-                PdfStyleUtil.boldFont(12, PdfStyleUtil.GOLD_HIGHLIGHT)));
-        heading.addElement(PdfStyleUtil.centeredParagraph(summary,
-                PdfStyleUtil.regularFont(9, PdfStyleUtil.WHITE)));
+        if (firstSection) {
+            heading.addElement(PdfStyleUtil.centeredParagraph(dayTitle,
+                    PdfStyleUtil.boldFont(12, PdfStyleUtil.GOLD_HIGHLIGHT)));
+            heading.addElement(PdfStyleUtil.centeredParagraph(summary,
+                    PdfStyleUtil.regularFont(9, PdfStyleUtil.WHITE)));
+        } else {
+            heading.addElement(PdfStyleUtil.centeredParagraph(dayTitle,
+                    PdfStyleUtil.regularFont(9, PdfStyleUtil.GOLD_HIGHLIGHT)));
+        }
         heading.addElement(PdfStyleUtil.centeredParagraph(
                 "MATCH " + safeText(fixture.getMatchNumber()),
                 PdfStyleUtil.regularFont(11, PdfStyleUtil.WHITE)));
@@ -960,7 +1408,7 @@ public class MatchSchedulePdfServiceImpl
     private void addFixtureSection(
             Document document, String dayTitle, String summary,
             String sectionTitle, List<MatchScheduleFixtureResponse> fixtures,
-            Map<String, Image> imageCache) throws Exception {
+            Map<String, Image> imageCache, boolean firstSection, UUID tournamentTeamId) throws Exception {
 
         if (fixtures.isEmpty()) {
             return;
@@ -974,23 +1422,30 @@ public class MatchSchedulePdfServiceImpl
                 .toList();
         // League tables already identify the stage in their section heading.
         boolean showStage = !"LEAGUE FIXTURES".equals(sectionTitle);
-        int columnCount = showStage ? 7 : 6;
+        boolean teamView = tournamentTeamId != null;
+        int columnCount = (showStage ? 7 : 6) - (teamView ? 2 : 0);
         PdfPTable table = new PdfPTable(columnCount);
         table.setWidthPercentage(100);
-        table.setWidths(showStage
+        table.setWidths(teamView
+                ? (showStage ? new float[]{1f, 1.6f, 4f, 2.2f, 1f}
+                             : new float[]{1f, 4.8f, 2.2f, 1f})
+                : showStage
                 ? new float[] {0.85f, 1.45f, 2.1f, 0.65f, 2.1f, 1.55f, 1.05f}
                 : new float[] {0.85f, 2.65f, 0.65f, 2.65f, 1.65f, 1.05f});
         table.setSpacingBefore(3);
         table.setSpacingAfter(8);
-        // Repeat day heading and counts along with column headers on later pages.
-        PdfPCell dayCell = PdfStyleUtil.createBrandingCell();
-        dayCell.setColspan(columnCount);
-        dayCell.setPadding(5);
-        dayCell.addElement(PdfStyleUtil.centeredParagraph(dayTitle,
-                PdfStyleUtil.boldFont(12, PdfStyleUtil.GOLD_HIGHLIGHT)));
-        dayCell.addElement(PdfStyleUtil.centeredParagraph(summary,
-                PdfStyleUtil.regularFont(9, PdfStyleUtil.WHITE)));
-        table.addCell(dayCell);
+        // Full daily summary appears only in the first non-empty section.
+        // Later sections retain compact date context even across page breaks.
+        if (firstSection) {
+            PdfPCell dayCell = PdfStyleUtil.createBrandingCell();
+            dayCell.setColspan(columnCount);
+            dayCell.setPadding(5);
+            dayCell.addElement(PdfStyleUtil.centeredParagraph(dayTitle,
+                    PdfStyleUtil.boldFont(12, PdfStyleUtil.GOLD_HIGHLIGHT)));
+            dayCell.addElement(PdfStyleUtil.centeredParagraph(summary,
+                    PdfStyleUtil.regularFont(9, PdfStyleUtil.WHITE)));
+            table.addCell(dayCell);
+        }
         PdfPCell sectionCell = PdfStyleUtil.createBaseCell(PdfStyleUtil.LIGHT_GOLD);
         sectionCell.setColspan(columnCount);
         sectionCell.setPadding(4);
@@ -1000,9 +1455,13 @@ public class MatchSchedulePdfServiceImpl
                 sectionTitle + " - " + fixtures.size()
                         + (fixtures.size() == 1 ? " MATCH" : " MATCHES"),
                 PdfStyleUtil.boldFont(11, PdfStyleUtil.PRIMARY_NAVY)));
+        if (!firstSection) {
+            sectionCell.addElement(PdfStyleUtil.centeredParagraph(dayTitle,
+                    PdfStyleUtil.regularFont(9, PdfStyleUtil.DARK_GOLD_TEXT)));
+        }
         table.addCell(sectionCell);
-        // Repeat day, section and column headings on continuation pages.
-        table.setHeaderRows(3);
+        // Repeat the appropriate section context and column headings.
+        table.setHeaderRows(firstSection ? 3 : 2);
         table.setSplitRows(true);
         table.setSplitLate(true);
         // Table headers
@@ -1010,14 +1469,21 @@ public class MatchSchedulePdfServiceImpl
         if (showStage) {
             addTableHeader(table, "Stage");
         }
-        addTableHeader(table, "Home Team");
-        addTableHeader(table, "VS");
-        addTableHeader(table, "Away Team");
+        if (teamView) {
+            addTableHeader(table, "Opponent");
+        } else {
+            addTableHeader(table, "Home Team");
+            addTableHeader(table, "VS");
+            addTableHeader(table, "Away Team");
+        }
         addTableHeader(table, "Time");
         addTableHeader(table, "Ground");
         // Add fixture rows
         for (int rowIndex = 0; rowIndex < sortedFixtures.size(); rowIndex++) {
             MatchScheduleFixtureResponse fixture = sortedFixtures.get(rowIndex);
+            if (teamView) {
+                addOpponentFixtureRow(table, fixture, imageCache, rowIndex, showStage, tournamentTeamId);
+            } else {
             addFixtureRow(
                     table,
                     fixture,
@@ -1025,6 +1491,7 @@ public class MatchSchedulePdfServiceImpl
                     rowIndex,
                     showStage
             );
+            }
         }
         document.add(table);
     }
@@ -1069,6 +1536,49 @@ public class MatchSchedulePdfServiceImpl
         table.addCell(PdfStyleUtil.createPremiumFixtureCell(dateTime, true, rowIndex));
         table.addCell(PdfStyleUtil.createPremiumFixtureCell(
                 safeText(fixture.getGroundNumber()), true, rowIndex));
+    }
+
+    private void addOpponentFixtureRow(PdfPTable table,
+            MatchScheduleFixtureResponse fixture, Map<String, Image> imageCache,
+            int rowIndex, boolean showStage, UUID tournamentTeamId) {
+        boolean home = tournamentTeamId.equals(fixture.getHomeTournamentTeamId());
+        String name = home ? fixture.getAwayTeamName() : fixture.getHomeTeamName();
+        String shortName = home ? fixture.getAwayTeamShortName() : fixture.getHomeTeamShortName();
+        String logoUrl = home ? fixture.getAwayTeamLogoUrl() : fixture.getHomeTeamLogoUrl();
+        String source = home ? fixture.getAwayTeamSource() : fixture.getHomeTeamSource();
+        Color background = PdfStyleUtil.premiumAlternateRowColor(rowIndex);
+        Color border = PdfStyleUtil.CHAMPAGNE_BORDER;
+        table.addCell(PdfStyleUtil.createPremiumMatchNumberCell(safeText(fixture.getMatchNumber())));
+        if (showStage) {
+            addStyledFixtureCell(table, createTextCell(formatLabel(fixture.getMatchStage()),
+                    true, PdfStyleUtil.DARK_GOLD_TEXT), background, border);
+        }
+        PdfPTable opponent = new PdfPTable(new float[]{1f, 4f});
+        opponent.setWidthPercentage(100);
+        PdfPCell logoCell = PdfStyleUtil.createBorderlessCell(background);
+        logoCell.setPadding(1f);
+        Image logo = pdfImageUtil.loadImage(logoUrl, 26f, 26f, imageCache);
+        if (logo != null) {
+            logo.setAlignment(Element.ALIGN_CENTER);
+            logoCell.addElement(logo);
+        } else {
+            logoCell.addElement(PdfStyleUtil.centeredParagraph(
+                    hasText(shortName) ? shortName : "-", PdfStyleUtil.regularFont(8, SUMMARY_MUTED)));
+        }
+        opponent.addCell(logoCell);
+        PdfPCell nameCell = PdfStyleUtil.createBorderlessCell(background);
+        nameCell.setPadding(2f);
+        nameCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        nameCell.addElement(new Paragraph(resolveTeamDisplayName(name, shortName, source),
+                PdfStyleUtil.boldFont(9, SUMMARY_NAVY)));
+        opponent.addCell(nameCell);
+        PdfPCell cell = PdfStyleUtil.createBaseCell(background);
+        cell.setPadding(2f);
+        cell.addElement(opponent);
+        addStyledFixtureCell(table, cell, background, border);
+        table.addCell(PdfStyleUtil.createPremiumFixtureCell(
+                formatTime(fixture.getStartTime()) + " - " + formatTime(fixture.getEndTime()), true, rowIndex));
+        table.addCell(PdfStyleUtil.createPremiumFixtureCell(safeText(fixture.getGroundNumber()), true, rowIndex));
     }
 
     private void addStyledFixtureCell(PdfPTable table, PdfPCell cell,
